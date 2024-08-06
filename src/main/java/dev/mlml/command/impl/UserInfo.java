@@ -39,7 +39,7 @@ public class UserInfo extends Command {
         eb.addField("Money", String.format("$%.2f", econUser.getMoney()), true);
         eb.addField("Profit", String.format("$%.2f", econUser.getProfit()), true);
         eb.addField("Loss", String.format("$%.2f", econUser.getLoss()), true);
-        eb.addField("Win Rate", String.format("%.2f%%", econUser.getWinRate()), true);
+        eb.addField("Win Rate", String.format("%.2f%%", econUser.getWinRate() * 100), true);
         eb.addField("Games", String.valueOf(econUser.getGames()), true);
         eb.addField("Wins", String.valueOf(econUser.getWins()), true);
         eb.addField("Lost", String.valueOf(econUser.getLost()), true);
