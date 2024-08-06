@@ -43,6 +43,7 @@ public class UserInfo extends Command {
         eb.addField("Games", String.valueOf(econUser.getGames()), true);
         eb.addField("Wins", String.valueOf(econUser.getWins()), true);
         eb.addField("Lost", String.valueOf(econUser.getLost()), true);
+        eb.addField("Bankruptcies", String.valueOf(econUser.getBankruptcies()), true);
 
         ctx.reply(eb.build());
     }

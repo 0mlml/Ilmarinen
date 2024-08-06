@@ -63,6 +63,13 @@ public class Leaderboard extends Command {
                               .sorted((a, b) -> b.getLost() - a.getLost())
                               .map(u -> String.format("<@%s> - %d losses\n", u.getId(), u.getLost()))
                               .toList();
+            case BANKRUPTCIES -> users.stream()
+                                      .sorted((a, b) -> b.getBankruptcies() - a.getBankruptcies())
+                                      .map(u -> String.format("<@%s> - %d bankruptcies\n",
+                                                              u.getId(),
+                                                              u.getBankruptcies()
+                                      ))
+                                      .toList();
         };
 
 
@@ -85,7 +92,8 @@ public class Leaderboard extends Command {
         WINRATE,
         GAMES,
         WINS,
-        LOST;
+        LOST,
+        BANKRUPTCIES;
 
         public String toString() {
             return name().toLowerCase();
