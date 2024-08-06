@@ -22,7 +22,7 @@ import java.util.List;
 )
 public class Leaderboard extends Command {
     private final static OptionArgument SORT_BY = new OptionArgument.Builder("sort")
-            .addOptions(Arrays.toString(SortBy.values()))
+            .addOptions(Arrays.stream(SortBy.values()).map(SortBy::toString).toList())
             .get();
 
     public Leaderboard() {

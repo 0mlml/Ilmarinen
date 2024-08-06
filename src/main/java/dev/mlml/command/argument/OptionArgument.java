@@ -3,6 +3,7 @@ package dev.mlml.command.argument;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -17,7 +18,7 @@ public class OptionArgument extends ArgumentBase<String> {
 
     @Override
     public String parse(String input) {
-        if (!List.of(options).contains(input)) {
+        if (Arrays.stream(options).noneMatch(option -> option.equalsIgnoreCase(input))) {
             return null;
         }
         return input;
@@ -40,10 +41,8 @@ public class OptionArgument extends ArgumentBase<String> {
             return getThis();
         }
 
-        public Builder addOptions(String... options) {
-            for (String option : options) {
-                addOption(option);
-            }
+        public Builder addOptions(List<String> options) {
+            this.options.addAll(options);
             return getThis();
         }
 
