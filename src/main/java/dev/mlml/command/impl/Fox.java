@@ -17,7 +17,6 @@ import java.util.Objects;
         keywords = {"fox", "foxie"},
         name = "Fox",
         description = "Get a fox media",
-        permissions = {Permission.MESSAGE_SEND},
         category = CommandInfo.Category.Fun,
         cooldown = 5
 )

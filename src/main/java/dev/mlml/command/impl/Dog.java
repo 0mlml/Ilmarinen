@@ -17,7 +17,6 @@ import java.util.Objects;
         keywords = {"dog", "doggo"},
         name = "Dog",
         description = "Get a dog media",
-        permissions = {Permission.MESSAGE_SEND},
         category = CommandInfo.Category.Fun,
         cooldown = 5
 )

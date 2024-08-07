@@ -17,7 +17,6 @@ import java.util.Objects;
         keywords = {"duck", "duckie"},
         name = "Duck",
         description = "Get a duck media",
-        permissions = {Permission.MESSAGE_SEND},
         category = CommandInfo.Category.Fun,
         cooldown = 5
 )
@@ -29,7 +28,7 @@ public class Duck extends Command {
         final DataObject response = Utils.sendGetRequest(DUCK_API_URL);
 
         if (Objects.isNull(response)) {
-            ctx.fail("Failed to get dog media");
+            ctx.fail("Failed to get duck media");
             return;
         }
 
