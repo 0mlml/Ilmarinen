@@ -49,7 +49,7 @@ public class Leaderboard extends Command {
                               .toList();
             case WINRATE -> users.stream()
                                  .sorted((a, b) -> (int) (b.getWinRate() - a.getWinRate()))
-                                 .map(u -> String.format("<@%s> - %.2f%%\n", u.getId(), u.getWinRate()))
+                                 .map(u -> String.format("<@%s> - %.2f%%\n", u.getId(), u.getWinRate() * 100))
                                  .toList();
             case GAMES -> users.stream()
                                .sorted((a, b) -> b.getGames() - a.getGames())

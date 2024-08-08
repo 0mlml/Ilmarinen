@@ -20,11 +20,10 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @CommandInfo(
-        keywords = {"ecrash", "crash"},
+        keywords = {"crash"},
         name = "CrashGame",
         description = "Crash gambling (economy)",
-        category = CommandInfo.Category.Economy,
-        cooldown = 5
+        category = CommandInfo.Category.Economy
 )
 public class Crash extends Command {
     private static final Logger logger = org.slf4j.LoggerFactory.getLogger(Crash.class);
@@ -63,7 +62,7 @@ public class Crash extends Command {
 
         EconGuild eg = Economy.getGuild(ctx.getGuild().getId());
         GamblingInstance gi = new GamblingInstance(eu, eg);
-        
+
         CrashGame existingCrash = games.get(channelId);
         if (existingCrash != null && existingCrash.notJoinable()) {
             ctx.fail("A game is already in progress!");
@@ -108,13 +107,13 @@ public class Crash extends Command {
         public CrashGame(TextChannel channel) {
             this.channel = channel;
             this.players = new ArrayList<>();
-            this.embed = new EmbedBuilder()
-                    .setTitle("Crash!")
-                    .setColor(0x7771d1)
-                    .setAuthor("Gambling")
-                    .setDescription("Join using the `ecrash <amt>` command!\nStarting in 5 seconds!")
-                    .setFooter("I love gambling!")
-                    .build();
+            this.embed = new EmbedBuilder().setTitle("Crash!")
+                                           .setColor(0x7771d1)
+                                           .setAuthor("Gambling")
+                                           .setDescription(
+                                                   "Join using the `ecrash <amt>` command!\nStarting in 5 seconds!")
+                                           .setFooter("I love gambling!")
+                                           .build();
             this.maxMultiplier = genMultiplier();
             this.currentMultiplier = 1;
             this.crashed = false;
@@ -155,28 +154,26 @@ public class Crash extends Command {
             }
 
             if (now - lastUpdate >= 3000) {
-                EmbedBuilder embedBuilder = new EmbedBuilder(embed)
-                        .setDescription("Current multiplier: x" + String.format("%.3f", currentMultiplier))
-                        .setTitle("\uD83D\uDFE2 Crash");
+                EmbedBuilder embedBuilder = new EmbedBuilder(embed).setDescription("Current multiplier: x" + String.format(
+                        "%.3f",
+                        currentMultiplier
+                )).setTitle("🟢 Crash");
                 message.editMessageEmbeds(embedBuilder.build())
-                       .setActionRow(Button.success("leavecrash", "Cash out")
-                                           .withEmoji(Emoji.fromUnicode("\uD83E\uDD11")))
+                       .setActionRow(Button.success("crash_leave", "Cash out").withEmoji(Emoji.fromUnicode("🤑")))
                        .queue();
                 lastUpdate = now;
             } else if (crashed) {
-                EmbedBuilder resultsEmbed = new EmbedBuilder()
-                        .setTitle("Crash results")
-                        .setColor(0x7771d1)
-                        .setDescription(getResultsDescription());
+                EmbedBuilder resultsEmbed = new EmbedBuilder().setTitle("Crash results")
+                                                              .setColor(0x7771d1)
+                                                              .setDescription(getResultsDescription());
 
-                EmbedBuilder crashedEmbed = new EmbedBuilder(embed)
-                        .setDescription("Crashed!\nMultiplier: x" + maxMultiplier)
-                        .setTitle("\uD83D\uDD34 Crash");
+                EmbedBuilder crashedEmbed = new EmbedBuilder(embed).setDescription("Crashed!\nMultiplier: x" + maxMultiplier)
+                                                                   .setTitle("🔴 Crash");
 
 
                 message.editMessageEmbeds(crashedEmbed.build(), resultsEmbed.build())
+                       .and(message.editMessageComponents())
                        .queue();
-                message.editMessageComponents().queue();
 
                 IO.save();
                 ticker.cancel();
@@ -234,10 +231,7 @@ public class Crash extends Command {
 
             player.cashOut(currentMultiplier);
 
-            event.reply(String.format("You won $%.2f at x%.2f",
-                                      player.getWinnings(),
-                                      player.getOutMultiplier()
-                 ))
+            event.reply(String.format("You won $%.2f at x%.2f", player.getWinnings(), player.getOutMultiplier()))
                  .setEphemeral(true)
                  .queue();
         }
