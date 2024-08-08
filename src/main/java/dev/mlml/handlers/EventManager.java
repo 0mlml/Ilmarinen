@@ -2,12 +2,15 @@ package dev.mlml.handlers;
 
 import dev.mlml.command.CommandRegistry;
 import dev.mlml.command.impl.Crash;
+import dev.mlml.command.impl.CrossyRoad;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 public class EventManager extends ListenerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(EventManager.class);
@@ -28,7 +31,16 @@ public class EventManager extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        logger.info("[{}] Button clicked", event.getChannel());
-        Crash.handleCrashLeaveButton(event);
+        String buttonId = event.getButton().getId();
+        logger.debug("Button interaction: {}", buttonId);
+        if (Objects.isNull(buttonId)) {
+            return;
+        }
+        if (buttonId.startsWith("crash")) {
+            Crash.handleCrashLeaveButton(event);
+        }
+        if (buttonId.startsWith("crossy_road")) {
+            CrossyRoad.handleCrossButton(event);
+        }
     }
 }

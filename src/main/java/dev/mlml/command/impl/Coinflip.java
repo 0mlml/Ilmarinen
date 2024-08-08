@@ -8,7 +8,12 @@ import dev.mlml.command.argument.ParsedArgument;
 import dev.mlml.command.argument.StringArgument;
 import dev.mlml.economy.*;
 
-@CommandInfo(keywords = {"coinflip", "cf"}, name = "Coinflip", description = "Flip a coin", category = CommandInfo.Category.Economy)
+@CommandInfo(
+        keywords = {"coinflip", "cf"},
+        name = "Coinflip",
+        description = "Flip a coin",
+        category = CommandInfo.Category.Economy
+)
 public class Coinflip extends Command {
     private static final StringArgument SIDE_ARG = new StringArgument.Builder("side").description(
             "The side of the coin to bet on").require().get();
