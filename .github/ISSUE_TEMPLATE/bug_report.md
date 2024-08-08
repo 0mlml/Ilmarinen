@@ -3,7 +3,7 @@ name: Bug report
 about: Create a report to help us improve
 title: "[BUG]"
 labels: bug
-assignees: 0mlml, NovusEdge, RAdu2005
+assignees: ''
 
 ---
 

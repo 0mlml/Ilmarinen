@@ -14,25 +14,25 @@ import java.net.URL;
 import java.util.Objects;
 
 @CommandInfo(
-        keywords = {"dog", "doggo"},
-        name = "Dog",
-        description = "Get a dog media",
+        keywords = {"fox", "foxie"},
+        name = "Fox",
+        description = "Get a fox media",
         category = CommandInfo.Category.Fun,
         cooldown = 5
 )
-public class Dog extends Command {
-    private static final String DOG_API_URL = "https://random.dog/woof.json";
+public class Fox extends Command {
+    private static final String FOX_API_URL = "https://randomfox.ca/floof/";
 
     @Override
     public void execute(Context ctx) {
-        final DataObject response = Utils.sendGetRequest(DOG_API_URL);
+        final DataObject response = Utils.sendGetRequest(FOX_API_URL);
 
         if (Objects.isNull(response)) {
-            ctx.fail("Failed to get dog media");
+            ctx.fail("Failed to get fox media");
             return;
         }
 
-        String mediaURl = response.get("url").toString();
+        String mediaURl = response.get("image").toString();
 
         try {
             URL url = new URL(mediaURl);
@@ -44,7 +44,7 @@ public class Dog extends Command {
                 ctx.getMessage().replyFiles(fileUpload).queue();
             }
         } catch (Exception e) {
-            ctx.fail("Failed to get dog media");
+            ctx.fail("Failed to get fox media");
         }
     }
 }
