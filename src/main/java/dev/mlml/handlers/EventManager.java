@@ -3,9 +3,12 @@ package dev.mlml.handlers;
 import dev.mlml.command.CommandRegistry;
 import dev.mlml.command.impl.Crash;
 import dev.mlml.command.impl.CrossyRoad;
+import dev.mlml.systems.starboard.StarboardSystem;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,5 +45,17 @@ public class EventManager extends ListenerAdapter {
         if (buttonId.startsWith("crossy_road")) {
             CrossyRoad.handleCrossButton(event);
         }
+    }
+
+    @Override
+    public void onMessageReactionAdd(MessageReactionAddEvent event) {
+        logger.info("[{}] {}: {}", event.getChannel(), event.getMember(), event.getReaction().getEmoji());
+        StarboardSystem.onMessageReactionAdd(event);
+    }
+
+    @Override
+    public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
+        logger.info("[{}] {}: {}", event.getChannel(), event.getMember(), event.getReaction().getEmoji());
+        StarboardSystem.onMessageReactionRemove(event);
     }
 }

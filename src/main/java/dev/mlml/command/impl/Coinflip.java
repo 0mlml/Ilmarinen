@@ -4,9 +4,10 @@ import dev.mlml.command.Command;
 import dev.mlml.command.CommandInfo;
 import dev.mlml.command.Context;
 import dev.mlml.command.argument.MoneyArgument;
+import dev.mlml.command.argument.OptionArgument;
 import dev.mlml.command.argument.ParsedArgument;
-import dev.mlml.command.argument.StringArgument;
-import dev.mlml.economy.*;
+import dev.mlml.systems.IO;
+import dev.mlml.systems.economy.*;
 
 @CommandInfo(
         keywords = {"coinflip", "cf"},
@@ -15,8 +16,11 @@ import dev.mlml.economy.*;
         category = CommandInfo.Category.Economy
 )
 public class Coinflip extends Command {
-    private static final StringArgument SIDE_ARG = new StringArgument.Builder("side").description(
-            "The side of the coin to bet on").require().get();
+    private static final OptionArgument SIDE_ARG = new OptionArgument.Builder("side")
+            .addOption("heads").addOption("tails")
+            .description("The side of the coin to bet on")
+            .require()
+            .get();
     private static final MoneyArgument AMOUNT_ARG = new MoneyArgument.Builder("amount").description(
             "The amount of money to bet").require().get();
 
@@ -40,8 +44,8 @@ public class Coinflip extends Command {
             return;
         }
 
-        EconGuild eg = Economy.getGuild(ctx.getGuild().getId());
-        EconUser eu = Economy.getUser(ctx.getMember().getId());
+        EconGuild eg = EconomySystem.getGuild(ctx.getGuild().getId());
+        EconUser eu = EconomySystem.getUser(ctx.getMember().getId());
 
         GamblingInstance gi = new GamblingInstance(eu, eg);
 
@@ -71,6 +75,6 @@ public class Coinflip extends Command {
             ctx.inform(sb.toString());
         }
 
-        IO.save();
+        IO.getSystem(EconIO.class).save();
     }
 }

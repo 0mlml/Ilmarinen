@@ -8,7 +8,7 @@
         <option name="gradleJvm" value="temurin-21" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$" />
+            <option value="/mnt/bigstorage/devel/java/Ilmarinen" />
           </set>
         </option>
       </GradleProjectSettings>

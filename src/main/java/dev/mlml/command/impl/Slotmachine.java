@@ -6,7 +6,8 @@ import dev.mlml.command.Context;
 import dev.mlml.command.Replies;
 import dev.mlml.command.argument.MoneyArgument;
 import dev.mlml.command.argument.ParsedArgument;
-import dev.mlml.economy.*;
+import dev.mlml.systems.IO;
+import dev.mlml.systems.economy.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.slf4j.Logger;
@@ -55,8 +56,8 @@ public class Slotmachine extends Command {
             return;
         }
 
-        EconUser eu = Economy.getUser(ctx.getMember().getId());
-        EconGuild eg = Economy.getGuild(ctx.getGuild().getId());
+        EconUser eu = EconomySystem.getUser(ctx.getMember().getId());
+        EconGuild eg = EconomySystem.getGuild(ctx.getGuild().getId());
         GamblingInstance gi = new GamblingInstance(eu, eg);
 
         float amount = amountArg.get().getValue() >= Float.MAX_VALUE ? eu.getMoney() : amountArg.get().getValue();
@@ -92,7 +93,7 @@ public class Slotmachine extends Command {
             }
 
             resMsg.editMessageEmbeds(resEmbed.build()).queue();
-            IO.save();
+            IO.getSystem(EconIO.class).save();
         });
     }
 

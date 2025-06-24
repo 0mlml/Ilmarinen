@@ -6,8 +6,8 @@ import dev.mlml.command.Context;
 import dev.mlml.command.Replies;
 import dev.mlml.command.argument.OptionArgument;
 import dev.mlml.command.argument.ParsedArgument;
-import dev.mlml.economy.EconUser;
-import dev.mlml.economy.Economy;
+import dev.mlml.systems.economy.EconUser;
+import dev.mlml.systems.economy.EconomySystem;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.util.Arrays;
@@ -33,7 +33,7 @@ public class Leaderboard extends Command {
     public void execute(Context ctx) {
         SortBy sortBy = SortBy.fromString(ctx.getArgument(SORT_BY).map(ParsedArgument::getValue).orElse("money"));
 
-        Collection<EconUser> users = Economy.getUsers().values();
+        Collection<EconUser> users = EconomySystem.getUsers().values();
         List<String> sortedUsers = switch (sortBy) {
             case MONEY -> users.stream()
                                .sorted((a, b) -> (int) (b.getMoney() - a.getMoney()))

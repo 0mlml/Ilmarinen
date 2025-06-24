@@ -6,10 +6,8 @@ import dev.mlml.command.Context;
 import dev.mlml.command.Replies;
 import dev.mlml.command.argument.MoneyArgument;
 import dev.mlml.command.argument.ParsedArgument;
-import dev.mlml.economy.EconGuild;
-import dev.mlml.economy.EconUser;
-import dev.mlml.economy.Economy;
-import dev.mlml.economy.GamblingInstance;
+import dev.mlml.systems.IO;
+import dev.mlml.systems.economy.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -71,7 +69,7 @@ public class CrossyRoad extends Command {
     public void execute(Context ctx) {
         float amount = ctx.getArgument(AMOUNT_ARG).map(ParsedArgument::getValue).orElse(0f);
 
-        EconUser eu = Economy.getUser(ctx.getMember().getId());
+        EconUser eu = EconomySystem.getUser(ctx.getMember().getId());
 
         if (amount >= Float.MAX_VALUE) {
             amount = eu.getMoney();
@@ -82,7 +80,7 @@ public class CrossyRoad extends Command {
             return;
         }
 
-        EconGuild eg = Economy.getGuild(ctx.getGuild().getId());
+        EconGuild eg = EconomySystem.getGuild(ctx.getGuild().getId());
         GamblingInstance gi = new GamblingInstance(eu, eg);
 
         if (CrossyGame.games.containsKey(gi.getUser().getId())) {
@@ -165,6 +163,7 @@ public class CrossyRoad extends Command {
 
             float winnings = amount * multiplier;
             gi.win(winnings);
+            IO.getSystem(EconIO.class).save();
 
             eb.setDescription(getResults());
             eb.setColor(0x00ff00);

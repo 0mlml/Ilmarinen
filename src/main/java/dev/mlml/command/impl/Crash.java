@@ -5,7 +5,8 @@ import dev.mlml.command.CommandInfo;
 import dev.mlml.command.Context;
 import dev.mlml.command.argument.MoneyArgument;
 import dev.mlml.command.argument.ParsedArgument;
-import dev.mlml.economy.*;
+import dev.mlml.systems.IO;
+import dev.mlml.systems.economy.*;
 import lombok.Data;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -49,7 +50,7 @@ public class Crash extends Command {
             return;
         }
 
-        EconUser eu = Economy.getUser(ctx.getMember().getId());
+        EconUser eu = EconomySystem.getUser(ctx.getMember().getId());
 
         if (amount >= Float.MAX_VALUE) {
             amount = eu.getMoney();
@@ -60,7 +61,7 @@ public class Crash extends Command {
             return;
         }
 
-        EconGuild eg = Economy.getGuild(ctx.getGuild().getId());
+        EconGuild eg = EconomySystem.getGuild(ctx.getGuild().getId());
         GamblingInstance gi = new GamblingInstance(eu, eg);
 
         CrashGame existingCrash = games.get(channelId);
@@ -76,7 +77,7 @@ public class Crash extends Command {
             ctx.fail(failReason);
         }
 
-        IO.save();
+        IO.getSystem(EconIO.class).save();
     }
 
     public static void handleCrashLeaveButton(ButtonInteractionEvent event) {
@@ -175,7 +176,7 @@ public class Crash extends Command {
                        .and(message.editMessageComponents())
                        .queue();
 
-                IO.save();
+                IO.getSystem(EconIO.class).save();
                 ticker.cancel();
                 games.remove(channel.getId());
             }

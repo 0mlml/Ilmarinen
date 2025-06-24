@@ -1,4 +1,4 @@
-package dev.mlml.economy;
+package dev.mlml.systems.economy;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,7 +6,7 @@ import lombok.Setter;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Economy {
+public class EconomySystem {
     @Getter
     @Setter
     private static EconGlobal econGlobal = new EconGlobal();
@@ -27,9 +27,6 @@ public class Economy {
         if (!users.containsKey(id)) {
             users.put(id, new EconUser(id));
         }
-
-        // TODO: Disable this code at some point
-        users.get(id).addAccolade(EconUser.ACCOLADE_BETA_TESTER);
 
         return users.get(id);
     }
