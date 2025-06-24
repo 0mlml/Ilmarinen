@@ -1,4 +1,4 @@
-package dev.mlml.economy;
+package dev.mlml.systems.economy;
 
 import lombok.Getter;
 

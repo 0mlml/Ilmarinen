@@ -6,8 +6,8 @@ import dev.mlml.command.Context;
 import dev.mlml.command.Replies;
 import dev.mlml.command.argument.ParsedArgument;
 import dev.mlml.command.argument.UserArgument;
-import dev.mlml.economy.EconUser;
-import dev.mlml.economy.Economy;
+import dev.mlml.systems.economy.EconUser;
+import dev.mlml.systems.economy.EconomySystem;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
@@ -32,7 +32,7 @@ public class UserInfo extends Command {
     public void execute(Context ctx) {
         User user = ctx.getArgument(USER_ARG).map(ParsedArgument::getValue).orElse(ctx.getAuthor());
 
-        EconUser econUser = Economy.getUser(user.getId());
+        EconUser econUser = EconomySystem.getUser(user.getId());
 
         EmbedBuilder eb = Replies.success(ctx, "User Info");
         eb.addField("User", user.getAsMention() + " " + String.join(", ", econUser.getAccolades()), false);

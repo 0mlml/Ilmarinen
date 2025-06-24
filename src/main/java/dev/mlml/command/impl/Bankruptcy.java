@@ -3,9 +3,10 @@ package dev.mlml.command.impl;
 import dev.mlml.command.Command;
 import dev.mlml.command.CommandInfo;
 import dev.mlml.command.Context;
-import dev.mlml.economy.EconUser;
-import dev.mlml.economy.Economy;
-import dev.mlml.economy.IO;
+import dev.mlml.systems.economy.EconIO;
+import dev.mlml.systems.economy.EconUser;
+import dev.mlml.systems.economy.EconomySystem;
+import dev.mlml.systems.IO;
 import net.dv8tion.jda.api.Permission;
 
 @CommandInfo(
@@ -21,7 +22,7 @@ public class Bankruptcy extends Command {
 
     @Override
     public void execute(Context ctx) {
-        EconUser econUser = Economy.getUser(ctx.getMember().getId());
+        EconUser econUser = EconomySystem.getUser(ctx.getMember().getId());
 
         if (econUser.getMoney() > 0) {
             ctx.fail("You can't declare bankruptcy if you have money!");
@@ -31,6 +32,6 @@ public class Bankruptcy extends Command {
         econUser.bailout(bailout);
 
         ctx.succeed(String.format("You got bailed out for %d!", bailout));
-        IO.save();
+        IO.getSystem(EconIO.class).save();
     }
 }

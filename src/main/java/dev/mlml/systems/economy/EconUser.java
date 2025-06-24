@@ -1,5 +1,6 @@
-package dev.mlml.economy;
+package dev.mlml.systems.economy;
 
+import dev.mlml.systems.Serialize;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

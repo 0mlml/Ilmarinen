@@ -7,8 +7,10 @@ import dev.mlml.command.argument.BooleanArgument;
 import dev.mlml.command.argument.MoneyArgument;
 import dev.mlml.command.argument.ParsedArgument;
 import dev.mlml.command.argument.UserArgument;
-import dev.mlml.economy.EconUser;
-import dev.mlml.economy.Economy;
+import dev.mlml.systems.IO;
+import dev.mlml.systems.economy.EconIO;
+import dev.mlml.systems.economy.EconUser;
+import dev.mlml.systems.economy.EconomySystem;
 import net.dv8tion.jda.api.entities.User;
 
 @CommandInfo(
@@ -50,7 +52,7 @@ public class Adjust extends Command {
             return;
         }
 
-        EconUser eu = Economy.getUser(user.getId());
+        EconUser eu = EconomySystem.getUser(user.getId());
 
         if (set) {
             eu.setMoney(money);
@@ -63,5 +65,7 @@ public class Adjust extends Command {
                                   money,
                                   eu.getMoney()
         ));
+
+        IO.getSystem(EconIO.class).save();
     }
 }

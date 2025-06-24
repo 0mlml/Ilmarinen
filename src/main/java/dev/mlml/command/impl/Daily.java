@@ -3,9 +3,10 @@ package dev.mlml.command.impl;
 import dev.mlml.command.Command;
 import dev.mlml.command.CommandInfo;
 import dev.mlml.command.Context;
-import dev.mlml.economy.EconUser;
-import dev.mlml.economy.Economy;
-import dev.mlml.economy.IO;
+import dev.mlml.systems.economy.EconIO;
+import dev.mlml.systems.economy.EconUser;
+import dev.mlml.systems.economy.EconomySystem;
+import dev.mlml.systems.IO;
 import net.dv8tion.jda.api.Permission;
 
 @CommandInfo(
@@ -21,10 +22,10 @@ public class Daily extends Command {
 
     @Override
     public void execute(Context ctx) {
-        EconUser econUser = Economy.getUser(ctx.getMember().getId());
+        EconUser econUser = EconomySystem.getUser(ctx.getMember().getId());
         econUser.addMoney(daily);
 
         ctx.succeed(String.format("You got your daily %d money", daily));
-        IO.save();
+        IO.getSystem(EconIO.class).save();
     }
 }

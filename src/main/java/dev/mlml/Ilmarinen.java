@@ -2,8 +2,10 @@ package dev.mlml;
 
 import dev.mlml.command.CommandRegistry;
 import dev.mlml.command.impl.*;
-import dev.mlml.economy.IO;
+import dev.mlml.systems.IO;
 import dev.mlml.handlers.EventManager;
+import dev.mlml.systems.economy.EconIO;
+import dev.mlml.systems.starboard.StarboardIO;
 import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -31,6 +33,7 @@ public class Ilmarinen {
         CommandRegistry.registerClass(Bankruptcy.class);
         CommandRegistry.registerClass(Adjust.class);
         CommandRegistry.registerClass(CrossyRoad.class);
+        CommandRegistry.registerClass(Starboard.class);
         CommandRegistry.registerClass(Duck.class);
         CommandRegistry.registerClass(Fox.class);
     }
@@ -42,7 +45,10 @@ public class Ilmarinen {
         }
 
         Config.loadFromFile();
-        IO.load();
+        EconIO econIO = new EconIO();
+        StarboardIO starboardIO = new StarboardIO();
+
+        IO.loadAll();
 
         String token = Config.getBotConfig().getToken();
 
@@ -58,7 +64,7 @@ public class Ilmarinen {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             jda.shutdown();
             Config.saveToFile();
-            IO.save();
+            IO.saveAll();
         }));
 
         EnumSet<GatewayIntent> intents = EnumSet.of(
@@ -72,5 +78,7 @@ public class Ilmarinen {
         jda = JDABuilder.createLight(token, intents)
                         .addEventListeners(new EventManager())
                         .build();
+
+        logger.info("Hello! I am: {}", jda.getSelfUser().getName());
     }
 }
