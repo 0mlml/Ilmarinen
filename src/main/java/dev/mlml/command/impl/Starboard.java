@@ -113,7 +113,7 @@ public class Starboard extends Command {
 
         StringBuilder sb = new StringBuilder("**Starboard Settings:**\n");
         sb.append("Channel: ")
-          .append(config.getChannel() != null ? "<#" + config.getChannel() + ">" : "Not set")
+          .append(config.getChannel() != null ? "<#" + config.getChannel().getId() + ">" : "Not set")
           .append("\n");
         sb.append("Threshold: ").append(config.getThreshold()).append("\n");
         sb.append("Emoji: ").append(config.getEmoji() != null ? config.getEmoji() : "Not set").append("\n");

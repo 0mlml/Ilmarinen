@@ -142,8 +142,11 @@ public class StarboardSystem {
 
     public static boolean isValidChannel(String guildId, String channelId) {
         try {
-            return Ilmarinen.getJda().getGuildById(guildId)
-                            .getTextChannelById(channelId) != null;
+            var guild = Ilmarinen.getJda().getGuildById(guildId);
+            if (guild == null) {
+                return false;
+            }
+            return guild.getTextChannelById(channelId) != null;
         } catch (Exception e) {
             return false;
         }
