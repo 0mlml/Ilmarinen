@@ -10,6 +10,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * CommandRegistry manages the registration and execution of commands in the system.
+ * It handles command cooldowns and permissions, and provides methods to register and execute commands.
+ */
 public class CommandRegistry {
     private static final Logger logger = LoggerFactory.getLogger(CommandRegistry.class);
 
@@ -43,6 +47,12 @@ public class CommandRegistry {
         cooldowns.get(command).put(userId, System.currentTimeMillis());
     }
 
+    /**
+     * Registers a command class to the registry.
+     * If the command class is already registered, it logs an error and does not register it again.
+     *
+     * @param commandClass the command class to register
+     */
     public static void registerClass(Class<? extends Command> commandClass) {
         if (commands.stream().anyMatch(command -> command.getClass().equals(commandClass))) {
             logger.error("Command class already registered: {}", commandClass.getName());
@@ -60,6 +70,13 @@ public class CommandRegistry {
         commands.add(instance);
     }
 
+    /**
+     * Retrieves a command by its keyword.
+     * If multiple commands share the same keyword, it returns the first one found.
+     *
+     * @param name the keyword to search for
+     * @return the Command instance if found, or null if not found
+     */
     @Nullable
     public static Command getCommandByKeyword(String name) {
         return commands.stream()
@@ -68,6 +85,13 @@ public class CommandRegistry {
                        .orElse(null);
     }
 
+    /**
+     * Executes a command based on the provided message.
+     * It checks if the command is valid, if the user has permission to execute it,
+     * and if the command is on cooldown. If all checks pass, it executes the command.
+     *
+     * @param message the message containing the command to execute
+     */
     @SneakyThrows
     public static void executeCommand(Message message) {
         if (message.getAuthor().isBot()) {

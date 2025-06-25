@@ -34,8 +34,8 @@ public class Coinflip extends Command {
 
     @Override
     public void execute(Context ctx) {
-        float amount = ctx.getArgument(AMOUNT_ARG).map(ParsedArgument::getValue).orElse(0f);
-        String side = ctx.getArgument(SIDE_ARG).map(ParsedArgument::getValue).orElse("");
+        float amount = ctx.getArgument(AMOUNT_ARG).map(ParsedArgument::value).orElse(0f);
+        String side = ctx.getArgument(SIDE_ARG).map(ParsedArgument::value).orElse("");
 
         side = side.toLowerCase();
 

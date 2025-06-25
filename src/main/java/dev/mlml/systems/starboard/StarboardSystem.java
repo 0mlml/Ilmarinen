@@ -14,12 +14,22 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * StarboardSystem handles starboard functionality for guilds.
+ * It manages starboard configurations, processes reactions, and sends starboard messages.
+ */
 public class StarboardSystem {
     private static final Logger logger = LoggerFactory.getLogger(StarboardSystem.class);
 
     @Getter
     private static final Map<String, StarboardGuild> guilds = new HashMap<>();
 
+    /**
+     * Retrieves or creates a StarboardGuild instance for the given guild ID.
+     *
+     * @param id the ID of the guild
+     * @return the StarboardGuild instance for the guild
+     */
     public static StarboardGuild getGuild(String id) {
         if (!guilds.containsKey(id)) {
             guilds.put(id, new StarboardGuild(id));
@@ -27,52 +37,53 @@ public class StarboardSystem {
         return guilds.get(id);
     }
 
+    /**
+     * Initializes the StarboardSystem by loading existing guild configurations.
+     */
     public static void onMessageReactionAdd(MessageReactionAddEvent event) {
-        // Don't process bot reactions
         if (event.getUser() == null || event.getUser().isBot()) {
             return;
         }
 
         StarboardGuild sbg = getGuild(event.getGuild().getId());
 
-        // Check if starboard is configured
         if (sbg.getChannel() == null) {
             return;
         }
 
-        // Check if this is the starboard emoji
         String reactionEmoji = getEmojiName(event.getReaction());
         if (!reactionEmoji.equals(sbg.getEmoji())) {
             return;
         }
 
-        // Retrieve the message and process starboard logic
         event.getChannel().retrieveMessageById(event.getMessageId()).queue(
                 message -> processStarboardReaction(message, sbg),
                 throwable -> logger.error("Failed to retrieve message for starboard processing", throwable)
         );
     }
 
+    /**
+     * Handles the removal of a reaction on a message.
+     * If the reaction is the starboard emoji, it processes the starboard logic.
+     *
+     * @param event the MessageReactionRemoveEvent
+     */
     public static void onMessageReactionRemove(MessageReactionRemoveEvent event) {
-        // Don't process bot reactions
         if (event.getUser() == null || event.getUser().isBot()) {
             return;
         }
 
         StarboardGuild sbg = getGuild(event.getGuild().getId());
 
-        // Check if starboard is configured
         if (sbg.getChannel() == null) {
             return;
         }
 
-        // Check if this is the starboard emoji
         String reactionEmoji = getEmojiName(event.getReaction());
         if (!reactionEmoji.equals(sbg.getEmoji())) {
             return;
         }
 
-        // Retrieve the message and process starboard logic
         event.getChannel().retrieveMessageById(event.getMessageId()).queue(
                 message -> processStarboardReaction(message, sbg),
                 throwable -> logger.error("Failed to retrieve message for starboard processing", throwable)
@@ -80,12 +91,10 @@ public class StarboardSystem {
     }
 
     private static void processStarboardReaction(Message message, StarboardGuild sbg) {
-        // Don't starboard messages from the starboard channel itself
         if (message.getChannel().getId().equals(sbg.getChannelId())) {
             return;
         }
 
-        // Find the starboard reaction and count
         int starCount = 0;
         for (MessageReaction reaction : message.getReactions()) {
             String reactionEmoji = getEmojiName(reaction);
@@ -97,11 +106,9 @@ public class StarboardSystem {
 
         logger.debug("Processing starboard reaction: {} stars, threshold: {}", starCount, sbg.getThreshold());
 
-        // Check if message meets threshold
         if (starCount >= sbg.getThreshold()) {
             sbg.sendStarboardMessage(message, starCount);
         } else if (sbg.isAlreadyStarred(message)) {
-            // Update existing starboard message (might get deleted if below threshold)
             sbg.updateStarboardMessage(message, starCount);
         }
     }
@@ -114,6 +121,11 @@ public class StarboardSystem {
         }
     }
 
+    /**
+     * Sets the starboard channel for a guild.
+     * @param guildId the ID of the guild
+     * @param channelId the ID of the channel to set as the starboard channel
+     */
     public static void setChannel(String guildId, String channelId) {
         StarboardGuild sbg = getGuild(guildId);
         sbg.setChannelId(channelId);
@@ -121,6 +133,11 @@ public class StarboardSystem {
         IO.getSystem(StarboardIO.class).save();
     }
 
+    /**
+     * Sets the starboard threshold for a guild.
+     * @param guildId the ID of the guild
+     * @param threshold the number of stars required to send a message to the starboard
+     */
     public static void setThreshold(String guildId, int threshold) {
         StarboardGuild sbg = getGuild(guildId);
         sbg.setThreshold(threshold);
@@ -128,6 +145,11 @@ public class StarboardSystem {
         IO.getSystem(StarboardIO.class).save();
     }
 
+    /**
+     * Sets the starboard emoji for a guild.
+     * @param guildId the ID of the guild
+     * @param emoji the emoji to use for starboard reactions
+     */
     public static void setEmoji(String guildId, String emoji) {
         StarboardGuild sbg = getGuild(guildId);
         sbg.setEmoji(emoji);
@@ -135,11 +157,24 @@ public class StarboardSystem {
         IO.getSystem(StarboardIO.class).save();
     }
 
+    /**
+     * Retrieves the starboard configuration for a guild.
+     * @param guildId the ID of the guild
+     * @return the StarboardConfig for the guild
+     */
     public static StarboardGuild.StarboardConfig getConfig(String guildId) {
         StarboardGuild sbg = getGuild(guildId);
         return sbg.getConfig();
     }
 
+    /**
+     * Checks if a channel is valid for starboard operations.
+     * A channel is considered valid if it exists in the guild and is a text channel.
+     *
+     * @param guildId the ID of the guild
+     * @param channelId the ID of the channel to check
+     * @return true if the channel is valid, false otherwise
+     */
     public static boolean isValidChannel(String guildId, String channelId) {
         try {
             var guild = Ilmarinen.getJda().getGuildById(guildId);

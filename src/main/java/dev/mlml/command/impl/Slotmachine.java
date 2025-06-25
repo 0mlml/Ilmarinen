@@ -60,7 +60,7 @@ public class Slotmachine extends Command {
         EconGuild eg = EconomySystem.getGuild(ctx.getGuild().getId());
         GamblingInstance gi = new GamblingInstance(eu, eg);
 
-        float amount = amountArg.get().getValue() >= Float.MAX_VALUE ? eu.getMoney() : amountArg.get().getValue();
+        float amount = amountArg.get().value() >= Float.MAX_VALUE ? eu.getMoney() : amountArg.get().value();
 
         if (!eu.canAfford(amount)) {
             ctx.fail("You don't have enough money");

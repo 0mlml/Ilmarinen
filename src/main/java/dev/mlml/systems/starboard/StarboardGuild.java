@@ -15,6 +15,9 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Represents a Starboard configuration for a guild.
+ */
 @Data
 public class StarboardGuild {
     private static final Logger logger = LoggerFactory.getLogger(StarboardGuild.class);
@@ -27,13 +30,16 @@ public class StarboardGuild {
     private String emoji = "⭐";
     @Serialize
     private final String id;
-    @Serialize
     private Set<String> starredMessages = new HashSet<>();
 
     public StarboardGuild(String id) {
         this.id = id;
     }
 
+    /**
+     * Gets the starboard channel for this guild.
+     * @return the TextChannel for the starboard, or null if not set
+     */
     public TextChannel getChannel() {
         if (channelId == null) {
             return null;
@@ -41,18 +47,38 @@ public class StarboardGuild {
         return Ilmarinen.getJda().getTextChannelById(channelId);
     }
 
+    /**
+     * Adds a message to the starred messages set.
+     * @param message the message to add
+     */
     public void addStarredMessage(Message message) {
         starredMessages.add(message.getId());
     }
 
+    /**
+     * Checks if a message is already starred.
+     * @param message the message to check
+     * @return true if the message is already starred, false otherwise
+     */
     public boolean isAlreadyStarred(Message message) {
         return starredMessages.contains(message.getId());
     }
 
+    /**
+     * Removes a message from the starred messages set.
+     * @param messageId the ID of the message to remove
+     */
     public void removeStarredMessage(String messageId) {
         starredMessages.remove(messageId);
     }
 
+    /**
+     * Sends a starboard message for the given message with the specified star count.
+     * If the message is already starred, it updates the existing starboard message.
+     *
+     * @param message   the original message to be starred
+     * @param starCount the number of stars received
+     */
     public void sendStarboardMessage(Message message, int starCount) {
         TextChannel starboardChannel = getChannel();
         if (starboardChannel == null) {
@@ -77,6 +103,13 @@ public class StarboardGuild {
                         );
     }
 
+    /**
+     * Updates an existing starboard message for the given original message with the new star count.
+     * If the star count is below the threshold, it deletes the starboard message after a delay.
+     *
+     * @param originalMessage the original message that was starred
+     * @param starCount       the updated number of stars
+     */
     public void updateStarboardMessage(Message originalMessage, int starCount) {
         TextChannel starboardChannel = getChannel();
         if (starboardChannel == null) {
@@ -104,7 +137,7 @@ public class StarboardGuild {
                                                              throwable -> logger.error("Failed to delete starboard message", throwable)
                         );
                     } else {
-                        starboardMessage.editMessage("✨ Updated!")
+                        starboardMessage.editMessage("✨Updated!")
                                         .setEmbeds(updatedEmbed.build())
                                         .queue();
                     }
@@ -143,6 +176,11 @@ public class StarboardGuild {
         return embed;
     }
 
+    /**
+     * Gets the current starboard configuration for this guild.
+     *
+     * @return the StarboardConfig containing channel ID, threshold, and emoji
+     */
     public StarboardConfig getConfig() {
         return new StarboardConfig(channelId, threshold, emoji);
     }

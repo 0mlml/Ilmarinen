@@ -3,6 +3,7 @@ package dev.mlml.handlers;
 import dev.mlml.command.CommandRegistry;
 import dev.mlml.command.impl.Crash;
 import dev.mlml.command.impl.CrossyRoad;
+import dev.mlml.systems.giveaway.GiveawaySystem;
 import dev.mlml.systems.starboard.StarboardSystem;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
@@ -44,6 +45,9 @@ public class EventManager extends ListenerAdapter {
         }
         if (buttonId.startsWith("crossy_road")) {
             CrossyRoad.handleCrossButton(event);
+        }
+        if (buttonId.startsWith("giveaway")) {
+            GiveawaySystem.onButtonInteraction(event);
         }
     }
 

@@ -11,6 +11,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * IO is an abstract class that provides a framework for saving and loading system data.
+ * It uses serialization to store objects in a file and allows for easy retrieval of data types.
+ * Subclasses must implement the registerDataTypes method to define their specific data types.
+ */
 public abstract class IO {
     private static final Logger logger = LoggerFactory.getLogger(IO.class);
 
@@ -45,22 +50,38 @@ public abstract class IO {
         registerDataType(typeName, clazz, null, provider);
     }
 
+    /**
+     * Saves all registered systems to their respective files.
+     * This method iterates through all systems in the registry and calls their save method.
+     */
     public static void saveAll() {
         for (IO system : systemRegistry.values()) {
             system.save();
         }
     }
 
+    /**
+     * Loads all registered systems from their respective files.
+     * This method iterates through all systems in the registry and calls their load method.
+     */
     public static void loadAll() {
         for (IO system : systemRegistry.values()) {
             system.load();
         }
     }
 
+    /**
+     * Retrieves a system by its class type.
+     * @param systemClass the class of the system to retrieve
+     * @return the system instance if found, null otherwise
+     */
     public static IO getSystem(Class<? extends IO> systemClass) {
         return systemRegistry.get(systemClass);
     }
 
+    /**
+     * Saves the current system data to a file.
+     */
     public void save() {
         StringBuilder sb = new StringBuilder();
 
@@ -76,6 +97,10 @@ public abstract class IO {
         }
     }
 
+    /**
+     * Loads the system data from a file.
+     * If the file does not exist, it will log a message and return.
+     */
     @SneakyThrows
     public void load() {
         File file = new File(fileName);

@@ -9,6 +9,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+/**
+ * Represents a command that has subcommands.
+ * Subcommands are specified using a SubcommandArgument.
+ */
 public abstract class SubcommandCommand extends Command {
     private static final Logger logger = LoggerFactory.getLogger(SubcommandCommand.class);
 
@@ -28,7 +32,7 @@ public abstract class SubcommandCommand extends Command {
 
     @Override
     public final void execute(Context ctx) {
-        String subcommand = ctx.getArgument(subcommandArgument).map(ParsedArgument::getValue).orElse(null);
+        String subcommand = ctx.getArgument(subcommandArgument).map(ParsedArgument::value).orElse(null);
 
         if (subcommand == null) {
             ctx.reply("Please specify a subcommand. Available: " + String.join(", ",

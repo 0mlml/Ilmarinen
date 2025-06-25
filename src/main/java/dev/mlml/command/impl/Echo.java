@@ -38,10 +38,10 @@ public class Echo extends Command {
     @Override
     public void execute(Context ctx) {
         Optional<ParsedArgument<Channel>> channelArg = ctx.getArgument(CHANNEL_ARG);
-        String message = ctx.getArgument(TEXT_ARG).map(ParsedArgument::getValue).orElse("");
+        String message = ctx.getArgument(TEXT_ARG).map(ParsedArgument::value).orElse("");
 
         if (channelArg.isPresent()) {
-            Channel channel = channelArg.get().getValue();
+            Channel channel = channelArg.get().value();
             if (channel.getType() != ChannelType.TEXT) {
                 ctx.fail("Invalid channel type");
                 return;

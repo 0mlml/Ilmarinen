@@ -42,7 +42,7 @@ public class Crash extends Command {
 
     @Override
     public void execute(Context ctx) {
-        float amount = ctx.getArgument(AMOUNT_ARG).map(ParsedArgument::getValue).orElse(0f);
+        float amount = ctx.getArgument(AMOUNT_ARG).map(ParsedArgument::value).orElse(0f);
         String channelId = ctx.getChannel().getId();
 
         if (amount <= 0) {
@@ -206,7 +206,7 @@ public class Crash extends Command {
                 return "Game has already started!";
             }
 
-            if (players.stream().anyMatch(p -> p.getId().equals(gi.getUser().getId()))) {
+            if (players.stream().anyMatch(p -> p.getId().equals(gi.user().getId()))) {
                 return "You have already joined!";
             }
 
@@ -249,7 +249,7 @@ public class Crash extends Command {
         private GamblingInstance gi;
 
         public Player(GamblingInstance gi, float amount) {
-            this.id = gi.getUser().getId();
+            this.id = gi.user().getId();
             this.gi = gi;
             this.amount = amount;
             this.out = false;

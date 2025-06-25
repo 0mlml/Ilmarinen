@@ -13,6 +13,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * Represents a command in the system.
+ */
 @Getter
 public abstract class Command {
     private static final Logger logger = LoggerFactory.getLogger(Command.class);
@@ -26,6 +29,13 @@ public abstract class Command {
     private final CommandInfo.Category category;
     private final List<ArgumentBase<?>> arguments = new ArrayList<>();
 
+    /**
+     * Constructs a Command instance with the specified arguments.
+     * The command must be annotated with @CommandInfo to provide metadata.
+     *
+     * @param args the arguments for the command, which must be of type ArgumentBase
+     * @throws IllegalStateException if the command does not have a CommandInfo annotation
+     */
     public Command(ArgumentBase<?>... args) {
         CommandInfo ci = this.getClass().getAnnotation(CommandInfo.class);
         if (Objects.isNull(ci)) {
@@ -64,46 +74,69 @@ public abstract class Command {
         logger.debug("Created command {} with {} arguments", name, args.length);
     }
 
+    /**
+     * Returns the usage format of the command.
+     *
+     * @return A string representing the usage format of the command, including all arguments.
+     */
     public String getUsage() {
-        StringBuilder sb = new StringBuilder();
+        if (arguments.isEmpty()) {
+            return "";
+        }
 
+        StringBuilder sb = new StringBuilder();
         for (ArgumentBase<?> arg : arguments) {
-            sb.append(arg.isRequired() ? "<" : "[");
-            sb.append(arg.getName());
-            if (arg.getClass() == StringArgument.class && ((StringArgument) arg).isVArgs()) {
-                sb.append("...");
-            }
-            sb.append(arg.isRequired() ? "> " : "] ");
-            sb.append(" ");
+            sb.append(arg.getUsageFormat()).append(" ");
         }
 
         return sb.toString().trim();
     }
 
+    /**
+     * Returns a description of the command's arguments.
+     * This method provides a formatted string that includes the help description of each argument.
+     *
+     * @return A string containing the help descriptions of all arguments, separated by new lines.
+     */
     public String getArgDescription() {
-        StringBuilder sb = new StringBuilder();
+        if (arguments.isEmpty()) {
+            return "";
+        }
 
+        StringBuilder sb = new StringBuilder();
         for (ArgumentBase<?> arg : arguments) {
-            sb.append(arg.getName());
-            sb.append(": ");
-            sb.append(arg.getDescription());
-            sb.append("\n");
+            sb.append(arg.getHelpDescription()).append("\n");
         }
 
         return sb.toString().trim();
     }
 
+    /**
+     * Executes the command with the given context.
+     * This method should be implemented by subclasses to define the command's behavior.
+     *
+     * @param ctx The context in which the command is executed, containing necessary information.
+     */
     public abstract void execute(Context ctx);
 
+    /**
+     * Checks if the command can be executed by the given member in the specified channel.
+     * This method verifies if the member has the required permissions to execute the command.
+     *
+     * @param member  The member attempting to execute the command.
+     * @param channel The channel in which the command is being executed.
+     * @return true if the member has the required permissions, false otherwise.
+     */
     public boolean canExecute(Member member, GuildChannel channel) {
         if (permissions.isEmpty()) {
             return true;
         }
 
         if (!extendedPermissions.isEmpty()) {
-            if (extendedPermissions.contains(CommandInfo.ExtendedPermission.BOT_ADMIN)
-                    && Arrays.stream(Config.getBotConfig().getAdmins())
-                             .noneMatch(admin -> admin.equals(member.getId()))) {
+            if (extendedPermissions.contains(CommandInfo.ExtendedPermission.BOT_ADMIN) && Arrays.stream(Config.getBotConfig()
+                                                                                                              .getAdmins())
+                                                                                                .noneMatch(admin -> admin.equals(
+                                                                                                        member.getId()))) {
                 return false;
             }
         }

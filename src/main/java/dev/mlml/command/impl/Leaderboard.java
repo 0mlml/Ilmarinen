@@ -31,7 +31,7 @@ public class Leaderboard extends Command {
 
     @Override
     public void execute(Context ctx) {
-        SortBy sortBy = SortBy.fromString(ctx.getArgument(SORT_BY).map(ParsedArgument::getValue).orElse("money"));
+        SortBy sortBy = SortBy.fromString(ctx.getArgument(SORT_BY).map(ParsedArgument::value).orElse("money"));
 
         Collection<EconUser> users = EconomySystem.getUsers().values();
         List<String> sortedUsers = switch (sortBy) {

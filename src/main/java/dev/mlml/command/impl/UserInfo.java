@@ -30,7 +30,7 @@ public class UserInfo extends Command {
 
     @Override
     public void execute(Context ctx) {
-        User user = ctx.getArgument(USER_ARG).map(ParsedArgument::getValue).orElse(ctx.getAuthor());
+        User user = ctx.getArgument(USER_ARG).map(ParsedArgument::value).orElse(ctx.getAuthor());
 
         EconUser econUser = EconomySystem.getUser(user.getId());
 

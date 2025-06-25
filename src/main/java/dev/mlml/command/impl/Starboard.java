@@ -4,7 +4,9 @@ import dev.mlml.command.Command;
 import dev.mlml.command.CommandInfo;
 import dev.mlml.command.Context;
 import dev.mlml.command.argument.*;
+import dev.mlml.systems.IO;
 import dev.mlml.systems.starboard.StarboardGuild;
+import dev.mlml.systems.starboard.StarboardIO;
 import dev.mlml.systems.starboard.StarboardSystem;
 import net.dv8tion.jda.api.Permission;
 
@@ -39,9 +41,9 @@ public class Starboard extends Command {
 
     @Override
     public void execute(Context ctx) {
-        String action = ctx.getArgument(ACTION_ARG).map(ParsedArgument::getValue).orElse("");
-        String setting = ctx.getArgument(SETTING_ARG).map(ParsedArgument::getValue).orElse("");
-        String value = ctx.getArgument(VALUE_ARG).map(ParsedArgument::getValue).orElse("");
+        String action = ctx.getArgument(ACTION_ARG).map(ParsedArgument::value).orElse("");
+        String setting = ctx.getArgument(SETTING_ARG).map(ParsedArgument::value).orElse("");
+        String value = ctx.getArgument(VALUE_ARG).map(ParsedArgument::value).orElse("");
 
         switch (action.toLowerCase()) {
             case "set" -> handleSet(ctx, setting, value);
@@ -98,6 +100,8 @@ public class Starboard extends Command {
             }
             default -> ctx.fail("Unknown setting: " + setting + ". Use: channel, threshold, emoji");
         }
+
+        IO.getSystem(StarboardIO.class).save();
     }
 
     private void handleGet(Context ctx, String setting) {

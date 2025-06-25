@@ -67,7 +67,7 @@ public class CrossyRoad extends Command {
 
     @Override
     public void execute(Context ctx) {
-        float amount = ctx.getArgument(AMOUNT_ARG).map(ParsedArgument::getValue).orElse(0f);
+        float amount = ctx.getArgument(AMOUNT_ARG).map(ParsedArgument::value).orElse(0f);
 
         EconUser eu = EconomySystem.getUser(ctx.getMember().getId());
 
@@ -83,7 +83,7 @@ public class CrossyRoad extends Command {
         EconGuild eg = EconomySystem.getGuild(ctx.getGuild().getId());
         GamblingInstance gi = new GamblingInstance(eu, eg);
 
-        if (CrossyGame.games.containsKey(gi.getUser().getId())) {
+        if (CrossyGame.games.containsKey(gi.user().getId())) {
             ctx.fail("You are already playing a game!");
             return;
         }
@@ -114,7 +114,7 @@ public class CrossyRoad extends Command {
 
             gi.play(amount);
 
-            games.put(gi.getUser().getId(), this);
+            games.put(gi.user().getId(), this);
 
             eb = Replies.base(ctx);
             eb.setTitle("Crossy road");
@@ -146,7 +146,7 @@ public class CrossyRoad extends Command {
                 eb.setDescription(getResults());
                 event.editMessageEmbeds(eb.build()).and(event.getMessage().editMessageComponents()).queue();
 
-                games.remove(gi.getUser().getId());
+                games.remove(gi.user().getId());
                 return;
             }
 
@@ -170,11 +170,11 @@ public class CrossyRoad extends Command {
 
             message.editMessageEmbeds(eb.build()).and(message.editMessageComponents()).queue();
 
-            games.remove(gi.getUser().getId());
+            games.remove(gi.user().getId());
         }
 
         public boolean isOwner(String userId) {
-            return gi.getUser().getId().equals(userId);
+            return gi.user().getId().equals(userId);
         }
 
         public String getPlayingState() {

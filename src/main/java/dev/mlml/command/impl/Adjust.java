@@ -38,9 +38,9 @@ public class Adjust extends Command {
 
     @Override
     public void execute(Context ctx) {
-        User user = ctx.getArgument(USER_ARGUMENT).map(ParsedArgument::getValue).orElse(null);
-        float money = ctx.getArgument(MONEY_ARGUMENT).map(ParsedArgument::getValue).orElse(0f);
-        boolean set = ctx.getArgument(SET_MONEY).map(ParsedArgument::getValue).orElse(false);
+        User user = ctx.getArgument(USER_ARGUMENT).map(ParsedArgument::value).orElse(null);
+        float money = ctx.getArgument(MONEY_ARGUMENT).map(ParsedArgument::value).orElse(0f);
+        boolean set = ctx.getArgument(SET_MONEY).map(ParsedArgument::value).orElse(false);
 
         if (user == null) {
             ctx.fail("Invalid user");

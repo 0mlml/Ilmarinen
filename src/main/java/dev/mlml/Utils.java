@@ -9,6 +9,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.Duration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utils {
     private static final Logger logger = LoggerFactory.getLogger(Utils.class);
@@ -152,5 +155,33 @@ public class Utils {
             logger.debug(e.getMessage());
         }
         return result;
+    }
+
+    /**
+     * Parses a duration string in the format "XdYhZm" (e.g., "2d5h30m") into a Duration object.
+     * Days, hours, and minutes are optional, but the duration cannot be zero.
+     *
+     * @param input the duration string to parse
+     * @return a Duration object representing the parsed duration
+     * @throws IllegalArgumentException if the input format is invalid or the duration is zero
+     */
+    public static Duration parseDuration(String input) throws IllegalArgumentException {
+        Pattern pattern = Pattern.compile("(?:(\\d+)d)?(?:(\\d+)h)?(?:(\\d+)m)?(?:(\\d+)s)?");
+        Matcher matcher = pattern.matcher(input.toLowerCase());
+
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("Invalid duration format");
+        }
+
+        long days = matcher.group(1) != null ? Long.parseLong(matcher.group(1)) : 0;
+        long hours = matcher.group(2) != null ? Long.parseLong(matcher.group(2)) : 0;
+        long minutes = matcher.group(3) != null ? Long.parseLong(matcher.group(3)) : 0;
+        long seconds = matcher.group(4) != null ? Long.parseLong(matcher.group(4)) : 0;
+
+        if (days == 0 && hours == 0 && minutes == 0 && seconds == 0) {
+            throw new IllegalArgumentException("Duration cannot be zero");
+        }
+
+        return Duration.ofDays(days).plusHours(hours).plusMinutes(minutes).plusSeconds(seconds);
     }
 }
