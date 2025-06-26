@@ -1,12 +1,10 @@
-name: Release Build
+name: Release
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -18,21 +16,15 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '21'
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Increment version.txt
+      - name: Remove -dev from version.txt
         run: |
           VERSION=$(cat src/main/resources/version.txt)
-          BASE=$(echo $VERSION | cut -d'-' -f1)
-          SUFFIX=$(echo $VERSION | grep -oE '-.*' || echo '')
-          PATCH=$(echo $BASE | awk -F. '{print $3}')
-          PATCH=$((PATCH+1))
-          NEW_VERSION=$(echo $BASE | awk -F. -v p=$PATCH '{print $1 "." $2 "." p}')$SUFFIX
-          echo $NEW_VERSION > src/main/resources/version.txt
+          RELEASE_VERSION=$(echo $VERSION | sed 's/-dev//')
+          echo $RELEASE_VERSION > src/main/resources/version.txt
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add src/main/resources/version.txt
-          git commit -m "Bump version to $NEW_VERSION [skip ci]" || echo "No changes to commit"
+          git commit -m "Release $RELEASE_VERSION [skip ci]" || echo "No changes to commit"
           git push || echo "No changes to push"
       - name: Build with Gradle
         run: ./gradlew build
@@ -40,4 +32,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ilmarinen-jar
-          path: build/libs/*.jar
+          path: build/libs/*.jar 

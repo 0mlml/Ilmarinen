@@ -25,7 +25,11 @@ public class FloatArgument extends ArgumentBase<Float> {
      */
     @Override
     public Float parse(String input) {
-        return Float.parseFloat(input);
+        float value = Float.parseFloat(input);
+        if (value < min || value > max) {
+            throw new IllegalArgumentException("Value must be between " + min + " and " + max);
+        }
+        return (float) Math.round(value * Math.pow(10, precision)) / (float) Math.pow(10, precision);
     }
 
     /**
