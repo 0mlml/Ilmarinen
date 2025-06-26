@@ -4,9 +4,12 @@ on:
   push:
     branches:
       - main
+  release:
+    types: [published]
 
 jobs:
   build:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -20,20 +23,33 @@ jobs:
           java-version: '21'
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      - name: Increment version.txt
-        run: |
-          VERSION=$(cat src/main/resources/version.txt)
-          BASE=$(echo $VERSION | cut -d'-' -f1)
-          SUFFIX=$(echo $VERSION | grep -oE '-.*' || echo '')
-          PATCH=$(echo $BASE | awk -F. '{print $3}')
-          PATCH=$((PATCH+1))
-          NEW_VERSION=$(echo $BASE | awk -F. -v p=$PATCH '{print $1 "." $2 "." p}')$SUFFIX
-          echo $NEW_VERSION > src/main/resources/version.txt
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add src/main/resources/version.txt
-          git commit -m "Bump version to $NEW_VERSION [skip ci]" || echo "No changes to commit"
-          git push || echo "No changes to push"
+      - name: Bump version (add -dev if not present)
+        run: ./scripts/bump_version.sh dev
+      - name: Build with Gradle
+        run: ./gradlew build
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ilmarinen-jar
+          path: build/libs/*.jar
+
+  release:
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '21'
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Remove -dev from version
+        run: ./scripts/bump_version.sh release
       - name: Build with Gradle
         run: ./gradlew build
       - name: Upload JAR artifact

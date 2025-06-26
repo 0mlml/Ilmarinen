@@ -5,10 +5,11 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleJvm" value="temurin-21" />
+        <option name="gradleHome" value="/usr/share/java/gradle" />
+        <option name="gradleJvm" value="corretto-24" />
         <option name="modules">
           <set>
-            <option value="/mnt/bigstorage/devel/java/Ilmarinen" />
+            <option value="$PROJECT_DIR$" />
           </set>
         </option>
       </GradleProjectSettings>

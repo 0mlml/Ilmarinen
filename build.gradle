@@ -14,22 +14,25 @@ jar {
 compileJava { options.encoding = "UTF-8" }
 compileTestJava { options.encoding = "UTF-8" }
 
-var lombokVersion = '1.18.34'
-var jdaVersion = '5.0.1'
+var jacksonVersion = '2.13.4'
+var lombokVersion = '1.18.38'
+var logbackVersion = '1.5.6'
+var jdaVersion = '5.6.1'
+
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.4'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.3'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.3'
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
 
     compileOnly "org.projectlombok:lombok:$lombokVersion"
     annotationProcessor "org.projectlombok:lombok:$lombokVersion"
 
-    implementation "ch.qos.logback:logback-classic:1.5.6"
+    implementation "ch.qos.logback:logback-classic:$logbackVersion"
     implementation("net.dv8tion:JDA:$jdaVersion") {
         exclude module: 'opus-java'
     }
