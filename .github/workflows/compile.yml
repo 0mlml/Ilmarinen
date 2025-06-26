@@ -23,6 +23,8 @@ jobs:
           java-version: '21'
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+      - name: Grant execute permission for bump_version
+        run: chmod +x ./scripts/bump_version.sh
       - name: Bump version (add -dev if not present)
         run: ./scripts/bump_version.sh dev
       - name: Build with Gradle
