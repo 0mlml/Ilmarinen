@@ -44,7 +44,7 @@ public class LevelLeaderboard extends Command {
             String userId = entry.getKey();
             int level = entry.getValue();
 
-            String medal = rank == 1 ? "\u1F947" : rank == 2 ? "\u1F948" : rank == 3 ? "\u1F949" : "**" + rank + ".**";
+            String medal = rank == 1 ? "\uD83E\uDD47" : rank == 2 ? "\uD83E\uDD48" : rank == 3 ? "\uD83E\uDD49" : String.format("%d.", rank);
 
             try {
                 User user = Ilmarinen.getJda().retrieveUserById(userId).complete();
