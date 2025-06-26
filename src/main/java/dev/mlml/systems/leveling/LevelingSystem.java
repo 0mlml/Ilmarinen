@@ -116,11 +116,11 @@ public class LevelingSystem {
         long cooldownMs = guild.getMessageCooldownMs();
         long baseExp = guild.calculateExperienceForMessage();
 
-        boolean experienceAwarded = user.recordMessage(cooldownMs, baseExp);
-        
-        if (experienceAwarded) {
+        long experienceAwarded = user.recordMessage(cooldownMs, baseExp);
+
+        if (experienceAwarded > 0) {
             levelingGlobal.incrementTotalMessages();
-            levelingGlobal.addTotalExperience(baseExp);
+            levelingGlobal.addTotalExperience(experienceAwarded);
 
             if (user.getLevel() > 0) {
                 handleLevelUp(message, guild, user);
@@ -128,12 +128,12 @@ public class LevelingSystem {
 
             user.updateStreak();
 
-            logger.debug("Awarded {} experience to user {} in guild {}", baseExp, userId, guildId);
+            logger.debug("Awarded {} experience to user {} in guild {}", experienceAwarded, userId, guildId);
 
             IO.getSystem(LevelingIO.class).save();
         }
 
-        return experienceAwarded;
+        return experienceAwarded > 0;
     }
 
     /**

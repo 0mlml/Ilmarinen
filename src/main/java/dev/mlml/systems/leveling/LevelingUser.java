@@ -77,15 +77,15 @@ public class LevelingUser {
      * Implements cooldown to prevent spam.
      * @param cooldownMs the cooldown period in milliseconds
      * @param baseExp the base experience to award
-     * @return true if experience was awarded, false if on cooldown
+     * @return the amount of experience gained, or 0 if cooldown is active
      */
-    public boolean recordMessage(long cooldownMs, long baseExp) {
+    public long recordMessage(long cooldownMs, long baseExp) {
         long currentTime = System.currentTimeMillis();
 
         messages++;
 
         if (currentTime - lastMessageTime < cooldownMs) {
-            return false;
+            return 0L;
         }
 
         lastMessageTime = currentTime;
@@ -95,7 +95,7 @@ public class LevelingUser {
         
         checkMessageAccolades();
         
-        return true;
+        return expGained;
     }
 
     /**

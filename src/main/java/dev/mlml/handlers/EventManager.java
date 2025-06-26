@@ -27,7 +27,6 @@ public class EventManager extends ListenerAdapter {
             logger.info("Attachments: {}", event.getMessage().getAttachments());
         }
         
-        // Process message for leveling system
         LevelingSystem.processMessage(event.getMessage());
         
         CommandRegistry.executeCommand(event.getMessage());
