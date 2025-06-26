@@ -184,4 +184,19 @@ public class Utils {
 
         return Duration.ofDays(days).plusHours(hours).plusMinutes(minutes).plusSeconds(seconds);
     }
+
+    /**
+     * Gets the version of the bot.
+     *
+     * @return the version of the bot
+     */
+    public static String getVersion() {
+        try (java.io.InputStream is = Utils.class.getClassLoader().getResourceAsStream("version.txt")) {
+            if (is == null) return "unknown";
+            java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+            return s.hasNext() ? s.next().trim() : "unknown";
+        } catch (Exception e) {
+            return "unknown";
+        }
+    }
 }

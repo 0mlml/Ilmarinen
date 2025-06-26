@@ -1,6 +1,7 @@
 package dev.mlml.command;
 
 import dev.mlml.Ilmarinen;
+import dev.mlml.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 public class Replies {
@@ -20,7 +21,8 @@ public class Replies {
      */
     public static EmbedBuilder base(Context ctx) {
         EmbedBuilder eb = new EmbedBuilder();
-        eb.setFooter("Ilmarinen", Ilmarinen.getJda().getSelfUser().getAvatarUrl());
+        String version = Utils.getVersion();
+        eb.setFooter("Ilmarinen v" + version, Ilmarinen.getJda().getSelfUser().getAvatarUrl());
         eb.setAuthor(ctx.getAuthor().getEffectiveName(), null, ctx.getAuthor().getAvatarUrl());
         return eb;
     }

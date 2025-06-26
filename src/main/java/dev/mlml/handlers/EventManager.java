@@ -4,6 +4,7 @@ import dev.mlml.command.CommandRegistry;
 import dev.mlml.command.impl.Crash;
 import dev.mlml.command.impl.CrossyRoad;
 import dev.mlml.systems.giveaway.GiveawaySystem;
+import dev.mlml.systems.leveling.LevelingSystem;
 import dev.mlml.systems.starboard.StarboardSystem;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
@@ -25,6 +26,9 @@ public class EventManager extends ListenerAdapter {
         if (!event.getMessage().getAttachments().isEmpty()) {
             logger.info("Attachments: {}", event.getMessage().getAttachments());
         }
+        
+        LevelingSystem.processMessage(event.getMessage());
+        
         CommandRegistry.executeCommand(event.getMessage());
     }
 

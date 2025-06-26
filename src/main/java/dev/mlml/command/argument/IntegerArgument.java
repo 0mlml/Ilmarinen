@@ -23,7 +23,11 @@ public class IntegerArgument extends ArgumentBase<Integer> {
      */
     @Override
     public Integer parse(String input) {
-        return Integer.parseInt(input);
+        int value = Integer.parseInt(input);
+        if (value < min || value > max) {
+            throw new IllegalArgumentException("Value must be between " + min + " and " + max);
+        }
+        return value;
     }
 
     /**

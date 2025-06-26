@@ -7,15 +7,19 @@ import dev.mlml.systems.IO;
 import dev.mlml.handlers.EventManager;
 import dev.mlml.systems.economy.EconIO;
 import dev.mlml.systems.giveaway.GiveawayIO;
+import dev.mlml.systems.leveling.LevelingIO;
 import dev.mlml.systems.starboard.StarboardIO;
 import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.managers.Presence;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.EnumSet;
+import java.util.List;
 
 public class Ilmarinen {
     @Getter
@@ -39,6 +43,28 @@ public class Ilmarinen {
         CommandRegistry.registerClass(Duck.class);
         CommandRegistry.registerClass(Fox.class);
         CommandRegistry.registerClass(Giveaway.class);
+        CommandRegistry.registerClass(LevelLeaderboard.class);
+        CommandRegistry.registerClass(LevelConfig.class);
+    }
+
+
+    private static List<Activity> status = List.of(Activity.playing("among the stars"),
+                                                   Activity.watching("over the horizon")
+    );
+
+    private static void presenceThread() {
+        Presence presence = jda.getPresence();
+        int i = 0;
+        while (true) {
+            try {
+                presence.setActivity(status.get(i));
+                i = (i + 1) % status.size();
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                logger.error("Presence thread interrupted", e);
+                break;
+            }
+        }
     }
 
     public static void main(String[] args) {
@@ -51,6 +77,7 @@ public class Ilmarinen {
         EconIO econIO = new EconIO();
         StarboardIO starboardIO = new StarboardIO();
         GiveawayIO giveawayIO = new GiveawayIO();
+        LevelingIO levelingIO = new LevelingIO();
 
         IO.loadAll();
 
@@ -71,18 +98,26 @@ public class Ilmarinen {
             IO.saveAll();
         }));
 
-        EnumSet<GatewayIntent> intents = EnumSet.of(
-                GatewayIntent.GUILD_MESSAGES,
-                GatewayIntent.GUILD_MEMBERS,
-                GatewayIntent.MESSAGE_CONTENT,
-                GatewayIntent.GUILD_MESSAGE_REACTIONS
+        EnumSet<GatewayIntent> intents = EnumSet.of(GatewayIntent.GUILD_MESSAGES,
+                                                    GatewayIntent.GUILD_MEMBERS,
+                                                    GatewayIntent.MESSAGE_CONTENT,
+                                                    GatewayIntent.GUILD_MESSAGE_REACTIONS
         );
 
         logger.info("Starting bot...");
 
-        jda = JDABuilder.createLight(token, intents)
-                        .addEventListeners(new EventManager())
-                        .build();
+        jda = JDABuilder.createLight(token, intents).addEventListeners(new EventManager()).build();
+
+        String version = Utils.getVersion();
+
+        ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+        if (version.contains("-dev")) {
+            rootLogger.setLevel(ch.qos.logback.classic.Level.DEBUG);
+            jda.getPresence().setActivity(net.dv8tion.jda.api.entities.Activity.playing("v" + version));
+        } else {
+            rootLogger.setLevel(ch.qos.logback.classic.Level.INFO);
+            Thread.startVirtualThread(Ilmarinen::presenceThread);
+        }
 
         logger.info("Hello! I am: {}", jda.getSelfUser().getName());
     }
