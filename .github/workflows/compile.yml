@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: '21'
+          java-version: '24'
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Grant execute permission for bump_version
@@ -28,7 +28,7 @@ jobs:
       - name: Bump version (add -dev if not present)
         run: ./scripts/bump_version.sh dev
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew shadowJar
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
         with:
@@ -47,13 +47,13 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: '21'
+          java-version: '24'
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Remove -dev from version
         run: ./scripts/bump_version.sh release
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew shadowJar
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
         with:
