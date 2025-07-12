@@ -2,7 +2,7 @@
 set -e
 
 VERSION_FILE="src/main/resources/version.txt"
-MODE="${1:-dev}"
+MODE=$1
 
 if [ ! -f "$VERSION_FILE" ]; then
   echo "0.1.0-dev" > "$VERSION_FILE"
@@ -27,9 +27,7 @@ if [ "$MODE" = "release" ]; then
 else
   PATCH=$((PATCH + 1))
   NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-  if [[ "$SUFFIX" != "-dev" ]]; then
     NEW_VERSION="$NEW_VERSION-dev"
-  fi
   echo "$NEW_VERSION" > "$VERSION_FILE"
   echo "Dev version bumped: $CURRENT_VERSION -> $NEW_VERSION"
 fi 

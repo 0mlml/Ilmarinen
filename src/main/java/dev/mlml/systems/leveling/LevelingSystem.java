@@ -116,13 +116,14 @@ public class LevelingSystem {
         long cooldownMs = guild.getMessageCooldownMs();
         long baseExp = guild.calculateExperienceForMessage();
 
+        long userLevel = user.getLevel();
         long experienceAwarded = user.recordMessage(cooldownMs, baseExp);
 
         if (experienceAwarded > 0) {
             levelingGlobal.incrementTotalMessages();
             levelingGlobal.addTotalExperience(experienceAwarded);
 
-            if (user.getLevel() > 0) {
+            if (user.getLevel() - userLevel > 0) {
                 handleLevelUp(message, guild, user);
             }
 
