@@ -10,8 +10,7 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The LevelingSystem class manages the global leveling state, including guilds and users.
@@ -193,25 +192,18 @@ public class LevelingSystem {
      * Gets the top users by level across all guilds.
      *
      * @param limit The maximum number of users to return.
-     * @return A map of user IDs to their levels, sorted by level (highest first).
+     * @return A list of LevelingUser objects sorted by level (highest first).
      */
-    public static Map<String, Integer> getTopUsers(int limit) {
-        return users.entrySet().stream()
-                .sorted((e1, e2) -> Integer.compare(e2.getValue().getLevel(), e1.getValue().getLevel()))
+    public static List<LevelingUser> getTopUsers(int limit) {
+        return users.values().stream()
+                .sorted((a, b) -> {
+                    int levelComparison = Integer.compare(b.getLevel(), a.getLevel());
+                    if (levelComparison != 0) {
+                        return levelComparison;
+                    }
+                    return Long.compare(b.getExperience(), a.getExperience());
+                })
                 .limit(limit)
-                .collect(HashMap::new, (map, entry) -> map.put(entry.getKey(), entry.getValue().getLevel()), HashMap::putAll);
-    }
-
-    /**
-     * Gets the top users by experience across all guilds.
-     *
-     * @param limit The maximum number of users to return.
-     * @return A map of user IDs to their experience, sorted by experience (highest first).
-     */
-    public static Map<String, Long> getTopUsersByExperience(int limit) {
-        return users.entrySet().stream()
-                .sorted((e1, e2) -> Long.compare(e2.getValue().getExperience(), e1.getValue().getExperience()))
-                .limit(limit)
-                .collect(HashMap::new, (map, entry) -> map.put(entry.getKey(), entry.getValue().getExperience()), HashMap::putAll);
+                .toList();
     }
 } 

@@ -6,11 +6,12 @@ import dev.mlml.command.CommandInfo;
 import dev.mlml.command.Context;
 import dev.mlml.command.Replies;
 import dev.mlml.systems.leveling.LevelingSystem;
+import dev.mlml.systems.leveling.LevelingUser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 
-import java.util.Map;
+import java.util.List;
 
 @CommandInfo(
         keywords = {"levelboard", "lvlboard", "levelleaderboard", "lvllb"},
@@ -27,8 +28,8 @@ public class LevelLeaderboard extends Command {
 
     @Override
     public void execute(Context ctx) {
-        Map<String, Integer> topUsers = LevelingSystem.getTopUsers(10);
-        
+        List<LevelingUser> topUsers = LevelingSystem.getTopUsers(10);
+
         if (topUsers.isEmpty()) {
             Replies.fail(ctx, "No leveling data available yet!");
             return;
@@ -39,20 +40,21 @@ public class LevelLeaderboard extends Command {
 
         StringBuilder sb = new StringBuilder();
         int rank = 1;
-        
-        for (Map.Entry<String, Integer> entry : topUsers.entrySet()) {
-            String userId = entry.getKey();
-            int level = entry.getValue();
+
+        for (LevelingUser entry : topUsers) {
+            String userId = entry.getId();
+            int level = entry.getLevel();
+            long exp = entry.getExperience();
 
             String medal = rank == 1 ? "\uD83E\uDD47" : rank == 2 ? "\uD83E\uDD48" : rank == 3 ? "\uD83E\uDD49" : String.format("%d.", rank);
 
             try {
                 User user = Ilmarinen.getJda().retrieveUserById(userId).complete();
-                sb.append(String.format("%s %s - Level %d\n", medal, user.getAsMention(), level));
+                sb.append(String.format("%s %s - Level %d (%d)\n", medal, user.getAsMention(), level, exp));
             } catch (Exception e) {
-                sb.append(String.format("%s <@%s> - Level %d\n", medal, userId, level));
+                sb.append(String.format("%s <@%s> - Level %d (%d)\n", medal, userId, level, exp));
             }
-            
+
             rank++;
         }
 

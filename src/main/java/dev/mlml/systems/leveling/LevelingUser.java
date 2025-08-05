@@ -105,7 +105,12 @@ public class LevelingUser {
     public boolean updateStreak() {
         long currentTime = System.currentTimeMillis();
         long dayInMs = 24 * 60 * 60 * 1000L;
-        
+
+        if (lastStreakTime == 0 || currentTime - lastStreakTime >= dayInMs * 2) {
+            streakDays = 0;
+            lastStreakTime = currentTime;
+        }
+
         if (currentTime - lastStreakTime >= dayInMs) {
             streakDays++;
             lastStreakTime = currentTime;
