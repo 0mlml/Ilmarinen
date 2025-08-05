@@ -92,7 +92,7 @@ public class Crash extends Command {
     @Data
     private static class CrashGame {
         private static final int TICK_RATE = 100;
-        private static final float BASE_INCREMENT = 1f / TICK_RATE;
+        private static final float BASE_INCREMENT = 1f / TICK_RATE * 0.25f;
         private static final int TICK_MILLIS = 1000 / TICK_RATE;
 
         private final TextChannel channel;
