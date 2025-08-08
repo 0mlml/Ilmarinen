@@ -54,8 +54,9 @@ public class UserInfo extends Command {
 
         // Economy stats
         eb.addField("Money", String.format("$%.2f", econUser.getMoney()), true);
-        eb.addField("Profit", String.format("$%.2f", econUser.getProfit()), true);
-        eb.addField("Loss", String.format("$%.2f", econUser.getLoss()), true);
+        float profit = econUser.getProfit();
+        eb.addField(profit > 0 ? "Profit" : "Loss", String.format("$%.2f", Math.abs(econUser.getProfit())), true);
+
 
         eb.addField("Win Rate", String.format("%.2f%%", econUser.getWinRate() * 100), true);
         eb.addField("Games", String.valueOf(econUser.getGames()), true);

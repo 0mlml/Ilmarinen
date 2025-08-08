@@ -38,6 +38,7 @@ public class Ilmarinen {
         CommandRegistry.registerClass(Leaderboard.class);
         CommandRegistry.registerClass(Bankruptcy.class);
         CommandRegistry.registerClass(Adjust.class);
+        CommandRegistry.registerClass(Pay.class);
         CommandRegistry.registerClass(CrossyRoad.class);
         CommandRegistry.registerClass(Starboard.class);
         CommandRegistry.registerClass(Duck.class);

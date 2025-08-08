@@ -15,10 +15,10 @@ import java.util.Arrays;
 public class LevelingUser {
     private static final Logger logger = LoggerFactory.getLogger(LevelingUser.class);
 
-    public static final String ACCOLADE_FIRST_LEVEL = "<:first_level:1234567890123456789>";
-    public static final String ACCOLADE_LEVEL_10 = "<:level_10:1234567890123456789>";
-    public static final String ACCOLADE_LEVEL_50 = "<:level_50:1234567890123456789>";
-    public static final String ACCOLADE_LEVEL_100 = "<:level_100:1234567890123456789>";
+    public static final String ACCOLADE_FIRST_LEVEL = "<:first_level:1403353661110882397>";
+    public static final String ACCOLADE_LEVEL_10 = "<:level_10:1403353881236471818>";
+    public static final String ACCOLADE_LEVEL_50 = "<:level_50:1403354110899650622>";
+    public static final String ACCOLADE_LEVEL_100 = "<:level_100:1403354357398765678>";
     public static final String ACCOLADE_MESSAGE_MASTER = "<:hamster:918912275501424661>";
 
     @Serialize

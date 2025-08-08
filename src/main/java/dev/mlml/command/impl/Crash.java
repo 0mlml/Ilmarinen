@@ -133,9 +133,7 @@ public class Crash extends Command {
         }
 
         private float genMultiplier() {
-            double p = 0.01;
-            double multiplier = Math.floor(Math.log(1 - Math.random()) / Math.log(1 - p)) / 10 + 1;
-            return (float) multiplier;
+            return (float) ((1f - 0.04f) / (1f - Math.random()));
         }
 
         private void tick(Message message) {
