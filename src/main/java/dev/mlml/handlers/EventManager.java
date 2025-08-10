@@ -1,8 +1,10 @@
 package dev.mlml.handlers;
 
 import dev.mlml.command.CommandRegistry;
+import dev.mlml.command.impl.Blackjack;
 import dev.mlml.command.impl.Crash;
 import dev.mlml.command.impl.CrossyRoad;
+import dev.mlml.command.impl.RideTheBus;
 import dev.mlml.systems.giveaway.GiveawaySystem;
 import dev.mlml.systems.leveling.LevelingSystem;
 import dev.mlml.systems.starboard.StarboardSystem;
@@ -26,9 +28,9 @@ public class EventManager extends ListenerAdapter {
         if (!event.getMessage().getAttachments().isEmpty()) {
             logger.info("Attachments: {}", event.getMessage().getAttachments());
         }
-        
+
         LevelingSystem.processMessage(event.getMessage());
-        
+
         CommandRegistry.executeCommand(event.getMessage());
     }
 
@@ -52,6 +54,12 @@ public class EventManager extends ListenerAdapter {
         }
         if (buttonId.startsWith("giveaway")) {
             GiveawaySystem.onButtonInteraction(event);
+        }
+        if (buttonId.startsWith("blackjack")) {
+            Blackjack.handleBlackjackButton(event);
+        }
+        if (buttonId.startsWith("ridethebus")) {
+            RideTheBus.handleRideTheBusButton(event);
         }
     }
 
