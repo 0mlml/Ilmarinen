@@ -162,7 +162,7 @@ public class Blackjack extends Command {
                                                  if (!players.isEmpty()) {
                                                      startGame(null);
                                                  } else {
-                                                     channel.sendMessage("Not enough players to start blackjack. Game cancelled.").queue();
+                                                     currentGameMessage.editMessage("Game cancelled due to no players joining.").queue();
                                                      games.remove(channel.getId());
                                                  }
                                              }, BETTING_TIME_SECONDS, TimeUnit.SECONDS
@@ -301,6 +301,13 @@ public class Blackjack extends Command {
             if (previousPlayer == null) {
                 if (event != null) {
                     event.reply("You weren't in the previous game!").setEphemeral(true).queue();
+                }
+                return;
+            }
+
+            if (!previousPlayer.getGi().user().canAfford(previousPlayer.getBet())) {
+                if (event != null) {
+                    event.reply("You can't afford to rejoin with your previous bet!").setEphemeral(true).queue();
                 }
                 return;
             }
