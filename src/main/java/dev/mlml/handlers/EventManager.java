@@ -1,13 +1,11 @@
 package dev.mlml.handlers;
 
 import dev.mlml.command.CommandRegistry;
-import dev.mlml.command.impl.Blackjack;
-import dev.mlml.command.impl.Crash;
-import dev.mlml.command.impl.CrossyRoad;
-import dev.mlml.command.impl.RideTheBus;
+import dev.mlml.command.impl.*;
 import dev.mlml.systems.giveaway.GiveawaySystem;
 import dev.mlml.systems.leveling.LevelingSystem;
 import dev.mlml.systems.starboard.StarboardSystem;
+import dev.mlml.systems.summarization.SummarizationSystem;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -30,8 +28,8 @@ public class EventManager extends ListenerAdapter {
         }
 
         LevelingSystem.processMessage(event.getMessage());
-
         CommandRegistry.executeCommand(event.getMessage());
+        SummarizationSystem.handleMessage(event.getMessage());
     }
 
     @Override
@@ -47,7 +45,7 @@ public class EventManager extends ListenerAdapter {
             return;
         }
         if (buttonId.startsWith("crash")) {
-            Crash.handleCrashLeaveButton(event);
+            Crash.handleCrashButton(event);
         }
         if (buttonId.startsWith("crossy_road")) {
             CrossyRoad.handleCrossButton(event);
@@ -60,6 +58,9 @@ public class EventManager extends ListenerAdapter {
         }
         if (buttonId.startsWith("ridethebus")) {
             RideTheBus.handleRideTheBusButton(event);
+        }
+        if (buttonId.startsWith("baccarat")) {
+            Baccarat.handleBaccaratButton(event);
         }
     }
 

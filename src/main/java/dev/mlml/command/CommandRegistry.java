@@ -1,6 +1,8 @@
 package dev.mlml.command;
 
 import dev.mlml.Utils;
+import dev.mlml.command.argument.ArgumentBase;
+import dev.mlml.command.argument.SubcommandArgument;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.entities.Message;
@@ -137,6 +139,10 @@ public class CommandRegistry {
                                         command.getUsage()
             )).complete();
             return;
+        } catch (IllegalArgumentException e) {
+            logger.error("Failed to parse command: {}, {}", command.getName(), e.getMessage());
+            message.reply(e.getMessage()).complete();
+            return;
         } catch (Exception e) {
             logger.error("Failed to parse command: {}, {}", command.getName(), e.getMessage());
             message.reply("An error occurred while parsing the command!").complete();
@@ -156,5 +162,14 @@ public class CommandRegistry {
 
         logger.debug("Executing command: {}", command.getName());
         command.execute(ctx);
+    }
+
+    public static SubcommandArgument getSubcommandArgument(SubcommandCommand command) {
+        for (ArgumentBase<?> arg : command.getArguments()) {
+            if (arg instanceof SubcommandArgument) {
+                return (SubcommandArgument) arg;
+            }
+        }
+        return null;
     }
 }

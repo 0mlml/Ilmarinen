@@ -27,13 +27,15 @@ public class ParsedArgumentList {
 
     /**
      * Adds a parsed argument to the list.
+     *
      * @param argument the argument definition to be parsed
-     * @param input the input string to parse the argument from
+     * @param input    the input string to parse the argument from
+     * @param <V>      the type of the value associated with the argument
      * @return the parsed argument
-     * @param <V> the type of the value associated with the argument
      */
-    public <V> ParsedArgument<V> add(ArgumentBase<V> argument, String input) {
-        V parsedValue = argument.parse(input);
+    public <V> ParsedArgument<V> add(ArgumentBase<V> argument, String input) throws IllegalArgumentException {
+        V parsedValue;
+        parsedValue = argument.parse(input);
         ParsedArgument<V> parsedArg = new ParsedArgument<>(argument, parsedValue);
         logger.debug("Parsed argument: {}", parsedArg);
         arguments.add(parsedArg);
@@ -43,9 +45,10 @@ public class ParsedArgumentList {
     /**
      * Adds a parsed argument without an input value.
      * This is typically used for arguments that do not require parsing, such as flags.
+     *
      * @param argument the argument definition to be added
+     * @param <V>      the type of the value associated with the argument
      * @return the parsed argument
-     * @param <V> the type of the value associated with the argument
      */
     public <V> ParsedArgument<V> add(ArgumentBase<V> argument) {
         ParsedArgument<V> parsedArg = new ParsedArgument<>(argument, null);

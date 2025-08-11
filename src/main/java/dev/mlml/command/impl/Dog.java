@@ -333,7 +333,7 @@ public class Dog extends SubcommandCommand {
 
         for (String line : lines) {
             if (current.length() + line.length() + 1 > maxLength) {
-                if (current.length() > 0) {
+                if (!current.isEmpty()) {
                     parts.add(current.toString());
                     current = new StringBuilder();
                 }
@@ -341,7 +341,7 @@ public class Dog extends SubcommandCommand {
             current.append(line).append("\n");
         }
 
-        if (current.length() > 0) {
+        if (!current.isEmpty()) {
             parts.add(current.toString());
         }
 

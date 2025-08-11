@@ -116,7 +116,7 @@ public class Help extends Command {
 
         // If this is a subcommand command, show available subcommands
         if (command instanceof SubcommandCommand) {
-            SubcommandArgument subcommandArg = getSubcommandArgument(command);
+            SubcommandArgument subcommandArg = CommandRegistry.getSubcommandArgument((SubcommandCommand) command);
             if (subcommandArg != null) {
                 sb.append("\n\nAvailable subcommands:\n");
                 Set<String> subcommands = subcommandArg.getValidSubcommands();
@@ -147,7 +147,7 @@ public class Help extends Command {
     }
 
     private void showSubcommandHelp(Context ctx, SubcommandCommand command, String commandName, String subcommandName) {
-        SubcommandArgument subcommandArg = getSubcommandArgument(command);
+        SubcommandArgument subcommandArg = CommandRegistry.getSubcommandArgument(command);
 
         if (subcommandArg == null) {
             ctx.fail("This command doesn't have subcommands");
@@ -196,14 +196,5 @@ public class Help extends Command {
         }
 
         ctx.succeed(sb.toString());
-    }
-
-    private SubcommandArgument getSubcommandArgument(Command command) {
-        for (ArgumentBase<?> arg : command.getArguments()) {
-            if (arg instanceof SubcommandArgument) {
-                return (SubcommandArgument) arg;
-            }
-        }
-        return null;
     }
 }

@@ -7,8 +7,8 @@ import dev.mlml.command.argument.MoneyArgument;
 import dev.mlml.command.argument.ParsedArgument;
 import dev.mlml.systems.IO;
 import dev.mlml.systems.economy.*;
-import dev.mlml.util.Card;
-import dev.mlml.util.Rank;
+import dev.mlml.util.CasinoDeck.Card;
+import dev.mlml.util.CasinoDeck.Rank;
 import dev.mlml.util.Suit;
 import lombok.Data;
 import lombok.Setter;
@@ -59,8 +59,23 @@ public class Blackjack extends Command {
         EconGuild eg = EconomySystem.getGuild(ctx.getGuild().getId());
         GamblingInstance gi = new GamblingInstance(eu, eg);
 
+        if (bet >= Float.MAX_VALUE) {
+            bet = eu.getMoney();
+        }
+
         if (!eu.canAfford(bet)) {
             ctx.fail("You don't have enough money!");
+            return;
+        }
+
+        if (games.containsKey(channelId)) {
+            BlackjackGame game = games.get(channelId);
+            String result = game.joinPlayer(gi, bet, ctx.getMember());
+            if (result != null) {
+                ctx.fail(result);
+            } else {
+                ctx.getMessage().addReaction(Emoji.fromUnicode("\u2705")).queue();
+            }
             return;
         }
 
@@ -80,8 +95,9 @@ public class Blackjack extends Command {
             );
         }
 
+        float finalBet = bet;
         future.thenRun(() -> {
-            String result = game.joinPlayer(gi, bet, ctx.getMember());
+            String result = game.joinPlayer(gi, finalBet, ctx.getMember());
             if (result != null) {
                 ctx.fail(result);
             } else {

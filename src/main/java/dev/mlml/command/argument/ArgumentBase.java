@@ -26,7 +26,7 @@ public abstract class ArgumentBase<V> {
      * @param input The input string to parse.
      * @return The parsed value of type V.
      */
-    public abstract V parse(String input);
+    public abstract V parse(String input) throws IllegalArgumentException;
 
     /**
      * Returns a help description for this argument, including its name, whether it is required,

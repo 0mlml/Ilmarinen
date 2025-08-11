@@ -9,6 +9,7 @@ import dev.mlml.systems.economy.EconIO;
 import dev.mlml.systems.giveaway.GiveawayIO;
 import dev.mlml.systems.leveling.LevelingIO;
 import dev.mlml.systems.starboard.StarboardIO;
+import dev.mlml.systems.music.MusicSystem;
 import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -24,6 +25,8 @@ import java.util.List;
 public class Ilmarinen {
     @Getter
     private static JDA jda;
+    @Getter
+    private static MusicSystem musicSystem;
     public static final Logger logger = LoggerFactory.getLogger(Ilmarinen.class);
 
     public static void initCommandRegistry() {
@@ -41,6 +44,7 @@ public class Ilmarinen {
         CommandRegistry.registerClass(Pay.class);
         CommandRegistry.registerClass(Blackjack.class);
         CommandRegistry.registerClass(RideTheBus.class);
+        CommandRegistry.registerClass(Summary.class);
         CommandRegistry.registerClass(CrossyRoad.class);
         CommandRegistry.registerClass(Starboard.class);
         CommandRegistry.registerClass(Duck.class);
@@ -48,6 +52,8 @@ public class Ilmarinen {
         CommandRegistry.registerClass(Giveaway.class);
         CommandRegistry.registerClass(LevelLeaderboard.class);
         CommandRegistry.registerClass(LevelConfig.class);
+        CommandRegistry.registerClass(Music.class);
+        CommandRegistry.registerClass(Baccarat.class);
     }
 
 
@@ -81,6 +87,7 @@ public class Ilmarinen {
         StarboardIO starboardIO = new StarboardIO();
         GiveawayIO giveawayIO = new GiveawayIO();
         LevelingIO levelingIO = new LevelingIO();
+        musicSystem = new MusicSystem();
 
         IO.loadAll();
 
@@ -104,12 +111,13 @@ public class Ilmarinen {
         EnumSet<GatewayIntent> intents = EnumSet.of(GatewayIntent.GUILD_MESSAGES,
                                                     GatewayIntent.GUILD_MEMBERS,
                                                     GatewayIntent.MESSAGE_CONTENT,
-                                                    GatewayIntent.GUILD_MESSAGE_REACTIONS
+                                                    GatewayIntent.GUILD_MESSAGE_REACTIONS,
+                                                    GatewayIntent.GUILD_VOICE_STATES
         );
 
         logger.info("Starting bot...");
 
-        jda = JDABuilder.createLight(token, intents).addEventListeners(new EventManager()).build();
+        jda = JDABuilder.create(token, intents).addEventListeners(new EventManager()).build();
 
         String version = Utils.getVersion();
 
