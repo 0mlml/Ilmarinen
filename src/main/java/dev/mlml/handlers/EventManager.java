@@ -5,7 +5,7 @@ import dev.mlml.command.impl.*;
 import dev.mlml.systems.giveaway.GiveawaySystem;
 import dev.mlml.systems.leveling.LevelingSystem;
 import dev.mlml.systems.starboard.StarboardSystem;
-import dev.mlml.systems.summarization.SummarizationSystem;
+import dev.mlml.systems.summarization.ZeroGPTSystem;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -29,7 +29,7 @@ public class EventManager extends ListenerAdapter {
 
         LevelingSystem.processMessage(event.getMessage());
         CommandRegistry.executeCommand(event.getMessage());
-        SummarizationSystem.handleMessage(event.getMessage());
+        ZeroGPTSystem.handleMessage(event.getMessage());
     }
 
     @Override

@@ -47,16 +47,21 @@ public class Blackjack extends Command {
 
     @Override
     public void execute(Context ctx) {
-        float bet = ctx.getArgument(BET_ARG).map(ParsedArgument::value).orElse(0f);
-        String channelId = ctx.getChannel().getId();
+        float bet = ctx.getArgument(BET_ARG)
+                       .map(ParsedArgument::value)
+                       .orElse(0f);
+        String channelId = ctx.getChannel()
+                              .getId();
 
         if (bet <= 0) {
             ctx.fail("Bet amount must be positive!");
             return;
         }
 
-        EconUser eu = EconomySystem.getUser(ctx.getMember().getId());
-        EconGuild eg = EconomySystem.getGuild(ctx.getGuild().getId());
+        EconUser eu = EconomySystem.getUser(ctx.getMember()
+                                               .getId());
+        EconGuild eg = EconomySystem.getGuild(ctx.getGuild()
+                                                 .getId());
         GamblingInstance gi = new GamblingInstance(eu, eg);
 
         if (bet >= Float.MAX_VALUE) {
@@ -74,7 +79,9 @@ public class Blackjack extends Command {
             if (result != null) {
                 ctx.fail(result);
             } else {
-                ctx.getMessage().addReaction(Emoji.fromUnicode("\u2705")).queue();
+                ctx.getMessage()
+                   .addReaction(Emoji.fromUnicode("\u2705"))
+                   .queue();
             }
             return;
         }
@@ -97,34 +104,50 @@ public class Blackjack extends Command {
 
         float finalBet = bet;
         future.thenRun(() -> {
-            String result = game.joinPlayer(gi, finalBet, ctx.getMember());
-            if (result != null) {
-                ctx.fail(result);
-            } else {
-                ctx.getMessage().addReaction(Emoji.fromUnicode("\u2705")).queue();
-            }
-        }).exceptionally(e -> {
-            ctx.fail("An error occurred while waiting for the game to start: " + e.getMessage());
-            return null;
-        });
+                  String result = game.joinPlayer(gi, finalBet, ctx.getMember());
+                  if (result != null) {
+                      ctx.fail(result);
+                  } else {
+                      ctx.getMessage()
+                         .addReaction(Emoji.fromUnicode("\u2705"))
+                         .queue();
+                  }
+              })
+              .exceptionally(e -> {
+                  ctx.fail("An error occurred while waiting for the game to start: " + e.getMessage());
+                  return null;
+              });
     }
 
     public static void handleBlackjackButton(ButtonInteractionEvent event) {
         BlackjackGame game = games.get(event.getChannelId());
         if (game == null) {
-            event.reply("No active blackjack game in this channel!").setEphemeral(true).queue();
+            event.reply("No active blackjack game in this channel!")
+                 .setEphemeral(true)
+                 .queue();
             return;
         }
 
-        String action = event.getComponentId().split("_")[1];
+        String action = event.getComponentId()
+                             .split("_")[1];
 
         switch (action) {
-            case "hit" -> game.playerHit(event.getUser().getId(), event);
-            case "stand" -> game.playerStand(event.getUser().getId(), event);
+            case "hit" -> game.playerHit(event.getUser()
+                                              .getId(), event
+            );
+            case "stand" -> game.playerStand(event.getUser()
+                                                  .getId(), event
+            );
             case "start" -> game.startGame(event);
-            case "rejoin" -> game.playerRejoin(event.getUser().getId(), event);
-            case "results" -> event.reply("Game results are shown in the game message.").setEphemeral(true).queue();
-            default -> event.reply("Invalid action").setEphemeral(true).queue();
+            case "rejoin" -> game.playerRejoin(event.getUser()
+                                                    .getId(), event
+            );
+            case "results" -> event.reply("Game results are shown in the game message.")
+                                   .setEphemeral(true)
+                                   .queue();
+            default -> event.reply("Invalid action")
+                            .setEphemeral(true)
+                            .queue();
         }
     }
 
@@ -178,7 +201,8 @@ public class Blackjack extends Command {
                                                  if (!players.isEmpty()) {
                                                      startGame(null);
                                                  } else {
-                                                     currentGameMessage.editMessage("Game cancelled due to no players joining.").queue();
+                                                     currentGameMessage.editMessage("Game cancelled due to no players joining.")
+                                                                       .queue();
                                                      games.remove(channel.getId());
                                                  }
                                              }, BETTING_TIME_SECONDS, TimeUnit.SECONDS
@@ -187,10 +211,15 @@ public class Blackjack extends Command {
 
         public String joinPlayer(GamblingInstance gi, float bet, Member playerMember) {
             if (state != GameState.WAITING) {
+                if (players.isEmpty()) {
+                    endGame();
+                }
                 return "Game has already started!";
             }
 
-            if (players.stream().anyMatch(p -> p.getId().equals(playerMember.getId()))) {
+            if (players.stream()
+                       .anyMatch(p -> p.getId()
+                                       .equals(playerMember.getId()))) {
                 return "You're already in the game!";
             }
 
@@ -202,6 +231,16 @@ public class Blackjack extends Command {
 
         public void startGame(ButtonInteractionEvent event) {
             if (state != GameState.WAITING) {
+                return;
+            }
+            if (Objects.isNull(event) && !players.stream()
+                                                 .anyMatch(p -> p.getMember()
+                                                                 .getId()
+                                                                 .equals(event.getUser()
+                                                                              .getId()))) {
+                event.reply("You are not in the game!")
+                     .setEphemeral(true)
+                     .queue();
                 return;
             }
             if (bettingTimer != null) {
@@ -221,7 +260,8 @@ public class Blackjack extends Command {
             updateGameMessage();
 
             if (event != null) {
-                event.deferEdit().queue();
+                event.deferEdit()
+                     .queue();
             }
         }
 
@@ -233,9 +273,13 @@ public class Blackjack extends Command {
                                                 if (currentPlayerIndex < players.size()) {
                                                     BlackjackPlayer currentPlayer = players.get(currentPlayerIndex);
                                                     channel.sendMessage(String.format("Time's up for %s! Automatically standing.",
-                                                                                      currentPlayer.getMember().getEffectiveName()
-                                                    )).queue();
-                                                    playerStand(players.get(currentPlayerIndex).getId(), null);
+                                                                                      currentPlayer.getMember()
+                                                                                                   .getEffectiveName()
+                                                           ))
+                                                           .queue();
+                                                    playerStand(players.get(currentPlayerIndex)
+                                                                        .getId(), null
+                                                    );
                                                 }
                                             }, PLAYER_TIME_SECONDS, TimeUnit.SECONDS
             );
@@ -244,7 +288,9 @@ public class Blackjack extends Command {
         public void playerHit(String playerId, ButtonInteractionEvent event) {
             if (!isCurrentPlayer(playerId)) {
                 if (event != null) {
-                    event.reply("It's not your turn!").setEphemeral(true).queue();
+                    event.reply("It's not your turn!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
@@ -258,13 +304,16 @@ public class Blackjack extends Command {
 
             if (player.getHandValue() > 21) {
                 if (event != null) {
-                    event.reply("Bust! You went over 21.").setEphemeral(true).queue();
+                    event.reply("Bust! You went over 21.")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 nextPlayer();
             } else {
                 updateGameMessage();
                 if (event != null) {
-                    event.deferEdit().queue();
+                    event.deferEdit()
+                         .queue();
                 }
             }
         }
@@ -272,7 +321,9 @@ public class Blackjack extends Command {
         public void playerStand(String playerId, ButtonInteractionEvent event) {
             if (!isCurrentPlayer(playerId)) {
                 if (event != null) {
-                    event.reply("It's not your turn!").setEphemeral(true).queue();
+                    event.reply("It's not your turn!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
@@ -283,47 +334,63 @@ public class Blackjack extends Command {
 
             nextPlayer();
             if (event != null) {
-                event.deferEdit().queue();
+                event.deferEdit()
+                     .queue();
             }
         }
 
         public void playerRejoin(String playerId, ButtonInteractionEvent event) {
             if (state != GameState.WAITING) {
                 if (event != null) {
-                    event.reply("Game is already in progress!").setEphemeral(true).queue();
+                    event.reply("Game is already in progress!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
 
-            if (players.stream().anyMatch(p -> p.getId().equals(playerId))) {
+            if (players.stream()
+                       .anyMatch(p -> p.getId()
+                                       .equals(playerId))) {
                 if (event != null) {
-                    event.reply("You are already in the game!").setEphemeral(true).queue();
+                    event.reply("You are already in the game!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
 
             if (Objects.isNull(previousGame)) {
                 if (event != null) {
-                    event.reply("No previous game to rejoin!").setEphemeral(true).queue();
+                    event.reply("No previous game to rejoin!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
 
             BlackjackPlayer previousPlayer = previousGame.players.stream()
-                                                                 .filter(p -> p.getId().equals(playerId))
+                                                                 .filter(p -> p.getId()
+                                                                               .equals(playerId))
                                                                  .findFirst()
                                                                  .orElse(null);
 
             if (previousPlayer == null) {
                 if (event != null) {
-                    event.reply("You weren't in the previous game!").setEphemeral(true).queue();
+                    event.reply("You weren't in the previous game!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
 
-            if (!previousPlayer.getGi().user().canAfford(previousPlayer.getBet())) {
+            if (!previousPlayer.getGi()
+                               .user()
+                               .canAfford(previousPlayer.getBet())) {
                 if (event != null) {
-                    event.reply("You can't afford to rejoin with your previous bet!").setEphemeral(true).queue();
+                    event.reply("You can't afford to rejoin with your previous bet!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
@@ -332,13 +399,16 @@ public class Blackjack extends Command {
             updateGameMessage();
 
             if (event != null) {
-                event.deferEdit().queue();
+                event.deferEdit()
+                     .queue();
             }
         }
 
         private boolean isCurrentPlayer(String playerId) {
             return state == GameState.IN_PROGRESS && currentPlayerIndex < players.size() && players.get(
-                    currentPlayerIndex).getId().equals(playerId);
+                            currentPlayerIndex)
+                    .getId()
+                    .equals(playerId);
         }
 
         private void nextPlayer() {
@@ -395,7 +465,8 @@ public class Blackjack extends Command {
                 bettingTimer.cancel(false);
             }
 
-            IO.getSystem(EconIO.class).save();
+            IO.getSystem(EconIO.class)
+              .save();
 
             games.remove(channel.getId());
             games.put(channel.getId(), new BlackjackGame(channel, this));
@@ -410,7 +481,8 @@ public class Blackjack extends Command {
             int aces = 0;
 
             for (Card card : hand) {
-                value += card.rank().getValue();
+                value += card.rank()
+                             .getValue();
                 if (card.rank() == Rank.ACE) {
                     aces++;
                 }
@@ -429,7 +501,8 @@ public class Blackjack extends Command {
         }
 
         private void updateGameMessage() {
-            EmbedBuilder eb = new EmbedBuilder().setTitle("♠️ BLACKJACK ♥️").setColor(0x2ECC71);
+            EmbedBuilder eb = new EmbedBuilder().setTitle("♠️ BLACKJACK ♥️")
+                                                .setColor(0x2ECC71);
 
             eb.addField("Dealer's Hand",
                         formatCards(dealerHand, dealerRevealed) + (dealerRevealed ? " (Value: " + calculateHandValue(
@@ -443,10 +516,12 @@ public class Blackjack extends Command {
                 String status = (i == currentPlayerIndex && state == GameState.IN_PROGRESS) ? " ▶ YOUR TURN" : "";
                 String result = player.getResult() != null ? "**" + player.getResult() + "**" : "";
                 if (i == currentPlayerIndex && state == GameState.IN_PROGRESS) {
-                    currentPlayerMention = player.getMember().getAsMention();
+                    currentPlayerMention = player.getMember()
+                                                 .getAsMention();
                 }
 
-                eb.addField(player.getMember().getEffectiveName() + status + " | Bet: $" + player.getBet(),
+                eb.addField(player.getMember()
+                                  .getEffectiveName() + status + " | Bet: $" + player.getBet(),
                             formatCards(player.getHand()) + " (Value: " + player.getHandValue() + ") " + result,
                             false
                 );
@@ -469,8 +544,10 @@ public class Blackjack extends Command {
                                       .withEmoji(Emoji.fromUnicode("🔙")));
                 }
             } else if (state == GameState.IN_PROGRESS && currentPlayerIndex < players.size()) {
-                buttons.add(Button.primary("blackjack_hit", "Hit").withEmoji(Emoji.fromUnicode("⬇️")));
-                buttons.add(Button.danger("blackjack_stand", "Stand").withEmoji(Emoji.fromUnicode("✋")));
+                buttons.add(Button.primary("blackjack_hit", "Hit")
+                                  .withEmoji(Emoji.fromUnicode("⬇️")));
+                buttons.add(Button.danger("blackjack_stand", "Stand")
+                                  .withEmoji(Emoji.fromUnicode("✋")));
             } else { // TODO: fix this hack to avoid "Cannot have empty row!" error
                 buttons.add(Button.secondary("blackjack_results", "View Results"));
             }
@@ -481,20 +558,22 @@ public class Blackjack extends Command {
                                                                                 : "Blackjack Game")
                                                                     .setEmbeds(eb.build())
                                                                     .setActionRow(buttons);
-                channel.sendMessage(mb.build()).queue(message -> {
-                    currentGameMessage = message;
-                    if (messageReadyCallback != null) {
-                        messageReadyCallback.run();
-                        messageReadyCallback = null;
-                    }
-                });
+                channel.sendMessage(mb.build())
+                       .queue(message -> {
+                           currentGameMessage = message;
+                           if (messageReadyCallback != null) {
+                               messageReadyCallback.run();
+                               messageReadyCallback = null;
+                           }
+                       });
             } else {
                 MessageEditBuilder ebuilder = new MessageEditBuilder().setContent(!currentPlayerMention.isEmpty()
                                                                                   ? currentPlayerMention
                                                                                   : "Blackjack Game")
                                                                       .setEmbeds(eb.build())
                                                                       .setActionRow(buttons);
-                currentGameMessage.editMessage(ebuilder.build()).queue(message -> currentGameMessage = message);
+                currentGameMessage.editMessage(ebuilder.build())
+                                  .queue(message -> currentGameMessage = message);
             }
         }
 
@@ -505,7 +584,9 @@ public class Blackjack extends Command {
         }
 
         private String formatCards(List<Card> cards) {
-            return cards.stream().map(Card::toString).collect(Collectors.joining(" "));
+            return cards.stream()
+                        .map(Card::toString)
+                        .collect(Collectors.joining(" "));
         }
     }
 
@@ -534,7 +615,8 @@ public class Blackjack extends Command {
             int aces = 0;
 
             for (Card card : hand) {
-                value += card.rank().getValue();
+                value += card.rank()
+                             .getValue();
                 if (card.rank() == Rank.ACE) {
                     aces++;
                 }

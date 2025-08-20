@@ -49,16 +49,21 @@ public class RideTheBus extends Command {
 
     @Override
     public void execute(Context ctx) {
-        float bet = ctx.getArgument(BET_ARG).map(ParsedArgument::value).orElse(0f);
-        String channelId = ctx.getChannel().getId();
+        float bet = ctx.getArgument(BET_ARG)
+                       .map(ParsedArgument::value)
+                       .orElse(0f);
+        String channelId = ctx.getChannel()
+                              .getId();
 
         if (bet <= 0) {
             ctx.fail("Bet amount must be positive!");
             return;
         }
 
-        EconUser eu = EconomySystem.getUser(ctx.getMember().getId());
-        EconGuild eg = EconomySystem.getGuild(ctx.getGuild().getId());
+        EconUser eu = EconomySystem.getUser(ctx.getMember()
+                                               .getId());
+        EconGuild eg = EconomySystem.getGuild(ctx.getGuild()
+                                                 .getId());
         GamblingInstance gi = new GamblingInstance(eu, eg);
 
         if (bet >= Float.MAX_VALUE) {
@@ -76,7 +81,9 @@ public class RideTheBus extends Command {
             if (result != null) {
                 ctx.fail(result);
             } else {
-                ctx.getMessage().addReaction(Emoji.fromUnicode("\u2705")).queue();
+                ctx.getMessage()
+                   .addReaction(Emoji.fromUnicode("\u2705"))
+                   .queue();
             }
             return;
         }
@@ -99,28 +106,35 @@ public class RideTheBus extends Command {
 
         float finalBet = bet;
         future.thenRun(() -> {
-            String result = game.joinPlayer(gi, finalBet, ctx.getMember());
-            if (result != null) {
-                ctx.fail(result);
-            } else {
-                ctx.getMessage().addReaction(Emoji.fromUnicode("\u2705")).queue();
-            }
-        }).exceptionally(e -> {
-            ctx.fail("An error occurred while waiting for the game to start: " + e.getMessage());
-            return null;
-        });
+                  String result = game.joinPlayer(gi, finalBet, ctx.getMember());
+                  if (result != null) {
+                      ctx.fail(result);
+                  } else {
+                      ctx.getMessage()
+                         .addReaction(Emoji.fromUnicode("\u2705"))
+                         .queue();
+                  }
+              })
+              .exceptionally(e -> {
+                  ctx.fail("An error occurred while waiting for the game to start: " + e.getMessage());
+                  return null;
+              });
     }
 
     public static void handleRideTheBusButton(ButtonInteractionEvent event) {
         RideTheBusGame game = games.get(event.getChannelId());
         if (game == null) {
-            event.reply("No active Ride the Bus game in this channel!").setEphemeral(true).queue();
+            event.reply("No active Ride the Bus game in this channel!")
+                 .setEphemeral(true)
+                 .queue();
             return;
         }
 
-        String[] parts = event.getComponentId().split("_");
+        String[] parts = event.getComponentId()
+                              .split("_");
         String action = parts[1];
-        String playerId = event.getUser().getId();
+        String playerId = event.getUser()
+                               .getId();
 
         switch (action) {
             case "red" -> game.playerChoice(playerId, Choice.RED, event);
@@ -135,8 +149,12 @@ public class RideTheBus extends Command {
             case "spades" -> game.playerChoice(playerId, Choice.SPADES, event);
             case "cashout" -> game.playerCashOut(playerId, event);
             case "start" -> game.startGame(event);
-            case "rejoin" -> game.playerRejoin(event.getUser().getId(), event);
-            default -> event.reply("Invalid action").setEphemeral(true).queue();
+            case "rejoin" -> game.playerRejoin(event.getUser()
+                                                    .getId(), event
+            );
+            default -> event.reply("Invalid action")
+                            .setEphemeral(true)
+                            .queue();
         }
     }
 
@@ -193,7 +211,8 @@ public class RideTheBus extends Command {
                                                if (!players.isEmpty()) {
                                                    startGame(null);
                                                } else {
-                                                   currentGameMessage.editMessage("Game cancelled due to no players joining.").queue();
+                                                   currentGameMessage.editMessage("Game cancelled due to no players joining.")
+                                                                     .queue();
                                                    games.remove(channel.getId());
                                                }
                                            }, WAITING_TIME_SECONDS, TimeUnit.SECONDS
@@ -202,10 +221,15 @@ public class RideTheBus extends Command {
 
         public String joinPlayer(GamblingInstance gi, float bet, Member playerMember) {
             if (state != GameState.WAITING) {
+                if (players.isEmpty()) {
+                    endGame();
+                }
                 return "Game has already started!";
             }
 
-            if (players.stream().anyMatch(p -> p.getId().equals(playerMember.getId()))) {
+            if (players.stream()
+                       .anyMatch(p -> p.getId()
+                                       .equals(playerMember.getId()))) {
                 return "You're already in the game!";
             }
 
@@ -218,40 +242,55 @@ public class RideTheBus extends Command {
         public void playerRejoin(String playerId, ButtonInteractionEvent event) {
             if (state != GameState.WAITING) {
                 if (event != null) {
-                    event.reply("Game is already in progress!").setEphemeral(true).queue();
+                    event.reply("Game is already in progress!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
 
-            if (players.stream().anyMatch(p -> p.getId().equals(playerId))) {
+            if (players.stream()
+                       .anyMatch(p -> p.getId()
+                                       .equals(playerId))) {
                 if (event != null) {
-                    event.reply("You are already in the game!").setEphemeral(true).queue();
+                    event.reply("You are already in the game!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
 
             if (Objects.isNull(previousGame)) {
                 if (event != null) {
-                    event.reply("No previous game to rejoin!").setEphemeral(true).queue();
+                    event.reply("No previous game to rejoin!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
 
             BusPlayer previousPlayer = previousGame.players.stream()
-                                                           .filter(p -> p.getId().equals(playerId))
+                                                           .filter(p -> p.getId()
+                                                                         .equals(playerId))
                                                            .findFirst()
                                                            .orElse(null);
 
             if (previousPlayer == null) {
                 if (event != null) {
-                    event.reply("You weren't in the previous game!").setEphemeral(true).queue();
+                    event.reply("You weren't in the previous game!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
 
-            if (!previousPlayer.getGi().user().canAfford(previousPlayer.getBet())) {
+            if (!previousPlayer.getGi()
+                               .user()
+                               .canAfford(previousPlayer.getBet())) {
                 if (event != null) {
-                    event.reply("You can't afford to rejoin with your previous bet!").setEphemeral(true).queue();
+                    event.reply("You can't afford to rejoin with your previous bet!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
@@ -260,7 +299,8 @@ public class RideTheBus extends Command {
             updateGameMessage();
 
             if (event != null) {
-                event.deferEdit().queue();
+                event.deferEdit()
+                     .queue();
             }
         }
 
@@ -268,9 +308,21 @@ public class RideTheBus extends Command {
             if (state != GameState.WAITING) {
                 return;
             }
+            if (Objects.isNull(event) && !players.stream()
+                                                 .anyMatch(p -> p.getMember()
+                                                                 .getId()
+                                                                 .equals(event.getUser()
+                                                                              .getId()))) {
+                event.reply("You are not in the game!")
+                     .setEphemeral(true)
+                     .queue();
+                return;
+            }
             if (players.isEmpty()) {
                 if (event != null) {
-                    event.reply("No players have joined!").setEphemeral(true).queue();
+                    event.reply("No players have joined!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
@@ -280,13 +332,15 @@ public class RideTheBus extends Command {
             updateGameMessage();
 
             if (event != null) {
-                event.deferEdit().queue();
+                event.deferEdit()
+                     .queue();
             }
         }
 
         private void startStageTimer() {
             stageTimer = executor.schedule(() -> {
-                                               channel.sendMessage("Time's up for stage " + (currentStage + 1) + "!").queue();
+                                               channel.sendMessage("Time's up for stage " + (currentStage + 1) + "!")
+                                                      .queue();
                                                processStageCompletion();
                                            }, WAITING_TIME_SECONDS, TimeUnit.SECONDS
             );
@@ -295,19 +349,24 @@ public class RideTheBus extends Command {
         public void playerChoice(String playerId, Choice choice, ButtonInteractionEvent event) {
             if (state != GameState.IN_PROGRESS) {
                 if (event != null) {
-                    event.reply("Game is not in progress!").setEphemeral(true).queue();
+                    event.reply("Game is not in progress!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
 
             BusPlayer player = players.stream()
-                                      .filter(p -> p.getId().equals(playerId) && !p.isEliminated() && !p.hasCashedOut())
+                                      .filter(p -> p.getId()
+                                                    .equals(playerId) && !p.isEliminated() && !p.hasCashedOut())
                                       .findFirst()
                                       .orElse(null);
 
             if (player == null) {
                 if (event != null) {
-                    event.reply("You're not in the game or already cashed out!").setEphemeral(true).queue();
+                    event.reply("You're not in the game or already cashed out!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
@@ -316,10 +375,13 @@ public class RideTheBus extends Command {
             updateGameMessage();
 
             if (event != null) {
-                event.deferEdit().queue();
+                event.deferEdit()
+                     .queue();
             }
 
-            long activePlayers = players.stream().filter(p -> !p.isEliminated() && !p.hasCashedOut()).count();
+            long activePlayers = players.stream()
+                                        .filter(p -> !p.isEliminated() && !p.hasCashedOut())
+                                        .count();
             if (currentChoices.size() >= activePlayers) {
                 processStageCompletion();
             }
@@ -328,19 +390,24 @@ public class RideTheBus extends Command {
         public void playerCashOut(String playerId, ButtonInteractionEvent event) {
             if (state != GameState.IN_PROGRESS) {
                 if (event != null) {
-                    event.reply("Game is not in progress!").setEphemeral(true).queue();
+                    event.reply("Game is not in progress!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
 
             BusPlayer player = players.stream()
-                                      .filter(p -> p.getId().equals(playerId) && !p.isEliminated() && !p.hasCashedOut())
+                                      .filter(p -> p.getId()
+                                                    .equals(playerId) && !p.isEliminated() && !p.hasCashedOut())
                                       .findFirst()
                                       .orElse(null);
 
             if (player == null) {
                 if (event != null) {
-                    event.reply("You're not in the game or already cashed out!").setEphemeral(true).queue();
+                    event.reply("You're not in the game or already cashed out!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
@@ -351,10 +418,13 @@ public class RideTheBus extends Command {
             updateGameMessage();
 
             if (event != null) {
-                event.reply("Cashed out with " + multiplier + "x multiplier!").setEphemeral(true).queue();
+                event.reply("Cashed out with " + multiplier + "x multiplier!")
+                     .setEphemeral(true)
+                     .queue();
             }
 
-            if (players.stream().allMatch(p -> p.isEliminated() || p.hasCashedOut())) {
+            if (players.stream()
+                       .allMatch(p -> p.isEliminated() || p.hasCashedOut())) {
                 endGame();
             }
         }
@@ -386,7 +456,8 @@ public class RideTheBus extends Command {
             currentChoices.clear();
             currentStage++;
 
-            if (currentStage >= 4 || players.stream().allMatch(p -> p.isEliminated() || p.hasCashedOut())) {
+            if (currentStage >= 4 || players.stream()
+                                            .allMatch(p -> p.isEliminated() || p.hasCashedOut())) {
                 endGame();
             } else {
                 startStageTimer();
@@ -397,21 +468,33 @@ public class RideTheBus extends Command {
         private boolean checkAnswer(int stage, Choice choice) {
             switch (stage) {
                 case 0: // Red or Black
-                    Suit suit = cards.getFirst().suit();
+                    Suit suit = cards.getFirst()
+                                     .suit();
                     return (choice == Choice.RED && (suit == Suit.HEARTS || suit == Suit.DIAMONDS)) || (choice == Choice.BLACK && (suit == Suit.CLUBS || suit == Suit.SPADES));
                 case 1: // Higher or Lower
-                    int firstValue = cards.get(0).rank().getValue();
-                    int secondValue = cards.get(1).rank().getValue();
+                    int firstValue = cards.get(0)
+                            .rank()
+                            .getValue();
+                    int secondValue = cards.get(1)
+                            .rank()
+                            .getValue();
                     return (choice == Choice.HIGHER && secondValue > firstValue) || (choice == Choice.LOWER && secondValue < firstValue);
                 case 2: // Inside or Outside
-                    int card1 = cards.get(0).rank().getValue();
-                    int card2 = cards.get(1).rank().getValue();
-                    int card3 = cards.get(2).rank().getValue();
+                    int card1 = cards.get(0)
+                            .rank()
+                            .getValue();
+                    int card2 = cards.get(1)
+                            .rank()
+                            .getValue();
+                    int card3 = cards.get(2)
+                            .rank()
+                            .getValue();
                     int low = Math.min(card1, card2);
                     int high = Math.max(card1, card2);
                     return (choice == Choice.INSIDE && card3 > low && card3 < high) || (choice == Choice.OUTSIDE && (card3 < low || card3 > high));
                 case 3: // Suit
-                    Suit cardSuit = cards.get(3).suit();
+                    Suit cardSuit = cards.get(3)
+                            .suit();
                     return (choice == Choice.HEARTS && cardSuit == Suit.HEARTS) || (choice == Choice.DIAMONDS && cardSuit == Suit.DIAMONDS) || (choice == Choice.CLUBS && cardSuit == Suit.CLUBS) || (choice == Choice.SPADES && cardSuit == Suit.SPADES);
                 default:
                     return false;
@@ -435,14 +518,16 @@ public class RideTheBus extends Command {
                 stageTimer.cancel(false);
             }
 
-            IO.getSystem(EconIO.class).save();
+            IO.getSystem(EconIO.class)
+              .save();
 
             games.remove(channel.getId());
             games.put(channel.getId(), new RideTheBusGame(channel, this));
         }
 
         private void updateGameMessage() {
-            EmbedBuilder eb = new EmbedBuilder().setTitle("🚌 RIDE THE BUS 🚌").setColor(0x3498DB);
+            EmbedBuilder eb = new EmbedBuilder().setTitle("🚌 RIDE THE BUS 🚌")
+                                                .setColor(0x3498DB);
 
             String stageDescription = getStageDescription();
             eb.setDescription(stageDescription);
@@ -451,7 +536,8 @@ public class RideTheBus extends Command {
                 StringBuilder cardsField = new StringBuilder();
                 for (int i = 0; i < cards.size(); i++) {
                     if (i < currentStage) {
-                        cardsField.append(cards.get(i).toString());
+                        cardsField.append(cards.get(i)
+                                                  .toString());
                     } else {
                         cardsField.append("[❓]");
                     }
@@ -474,7 +560,9 @@ public class RideTheBus extends Command {
                     }
                 }
 
-                eb.addField(player.getMember().getEffectiveName() + " | Bet: $" + player.getBet(), status, false);
+                eb.addField(player.getMember()
+                                  .getEffectiveName() + " | Bet: $" + player.getBet(), status, false
+                );
             }
 
             List<Button> buttons = new ArrayList<>();
@@ -485,7 +573,8 @@ public class RideTheBus extends Command {
                                       .withEmoji(Emoji.fromUnicode("🔙")));
                 }
             } else if (state == GameState.IN_PROGRESS) {
-                buttons.add(Button.danger("ridethebus_cashout", "Cash Out").withEmoji(Emoji.fromUnicode("💰")));
+                buttons.add(Button.danger("ridethebus_cashout", "Cash Out")
+                                  .withEmoji(Emoji.fromUnicode("💰")));
 
                 switch (currentStage) {
                     case 0 -> {
@@ -510,21 +599,24 @@ public class RideTheBus extends Command {
             }
 
             if (currentGameMessage == null) {
-                MessageCreateBuilder mb = new MessageCreateBuilder().setEmbeds(eb.build()).setActionRow(buttons);
-                channel.sendMessage(mb.build()).queue(message -> {
-                    currentGameMessage = message;
-                    if (messageReadyCallback != null) {
-                        messageReadyCallback.run();
-                        messageReadyCallback = null;
-                    }
-                });
+                MessageCreateBuilder mb = new MessageCreateBuilder().setEmbeds(eb.build())
+                                                                    .setActionRow(buttons);
+                channel.sendMessage(mb.build())
+                       .queue(message -> {
+                           currentGameMessage = message;
+                           if (messageReadyCallback != null) {
+                               messageReadyCallback.run();
+                               messageReadyCallback = null;
+                           }
+                       });
             } else {
                 MessageEditBuilder ebuilder = new MessageEditBuilder().setEmbeds(eb.build())
                                                                       .setComponents(buttons.isEmpty()
                                                                                      ? Collections.emptyList()
                                                                                      : List.of(net.dv8tion.jda.api.interactions.components.ActionRow.of(
                                                                                              buttons)));
-                currentGameMessage.editMessage(ebuilder.build()).queue(message -> currentGameMessage = message);
+                currentGameMessage.editMessage(ebuilder.build())
+                                  .queue(message -> currentGameMessage = message);
             }
         }
 

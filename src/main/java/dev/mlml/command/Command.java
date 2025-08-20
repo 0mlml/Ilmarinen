@@ -18,7 +18,7 @@ import java.util.*;
  */
 @Getter
 public abstract class Command {
-    private static final Logger logger = LoggerFactory.getLogger(Command.class);
+    protected static final Logger logger = LoggerFactory.getLogger(Command.class);
 
     private final String[] keywords;
     private final String name;

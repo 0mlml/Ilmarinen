@@ -118,9 +118,9 @@ public class Starboard extends Command {
         StringBuilder sb = new StringBuilder("**Starboard Settings:**\n");
         sb.append("Channel: ")
           .append(config.getChannel() != null ? "<#" + config.getChannel().getId() + ">" : "Not set")
-          .append("\n");
-        sb.append("Threshold: ").append(config.getThreshold()).append("\n");
-        sb.append("Emoji: ").append(config.getEmoji() != null ? config.getEmoji() : "Not set").append("\n");
+          .append("\nThe channel where starboard messages will be sent.\n");
+        sb.append("Threshold: ").append(config.getThreshold()).append("\nThe number of reactions required to pin a message.\n");
+        sb.append("Emoji: ").append(config.getEmoji() != null ? config.getEmoji() : "Not set").append("\nThe emoji used for starboard reactions. Use `*` for a wildcard.\n");
 
         ctx.inform(sb.toString());
     }

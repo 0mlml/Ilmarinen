@@ -38,7 +38,8 @@ public class Baccarat extends Command {
             .get();
     private static final OptionArgument CHOICE_ARG = new OptionArgument.Builder("choice").description(
                     "Bet on Player, Banker, or Tie")
-            .require().addOptions(List.of("player", "banker", "tie"))
+            .require()
+            .addOptions(List.of("player", "banker", "tie"))
             .get();
 
     private static final Map<String, BaccaratGame> games = new ConcurrentHashMap<>();
@@ -49,17 +50,25 @@ public class Baccarat extends Command {
     }
 
     public void execute(Context ctx) {
-        float bet = ctx.getArgument(BET_ARG).map(ParsedArgument::value).orElse(0f);
-        String choice = ctx.getArgument(CHOICE_ARG).map(ParsedArgument::value).orElse("player").toLowerCase();
-        String channelId = ctx.getChannel().getId();
+        float bet = ctx.getArgument(BET_ARG)
+                       .map(ParsedArgument::value)
+                       .orElse(0f);
+        String choice = ctx.getArgument(CHOICE_ARG)
+                           .map(ParsedArgument::value)
+                           .orElse("player")
+                           .toLowerCase();
+        String channelId = ctx.getChannel()
+                              .getId();
 
         if (bet <= 0) {
             ctx.fail("Bet amount must be positive!");
             return;
         }
 
-        EconUser eu = EconomySystem.getUser(ctx.getMember().getId());
-        EconGuild eg = EconomySystem.getGuild(ctx.getGuild().getId());
+        EconUser eu = EconomySystem.getUser(ctx.getMember()
+                                               .getId());
+        EconGuild eg = EconomySystem.getGuild(ctx.getGuild()
+                                                 .getId());
         GamblingInstance gi = new GamblingInstance(eu, eg);
 
         if (bet >= Float.MAX_VALUE) {
@@ -77,7 +86,9 @@ public class Baccarat extends Command {
             if (result != null) {
                 ctx.fail(result);
             } else {
-                ctx.getMessage().addReaction(Emoji.fromUnicode("\u2795")).queue();
+                ctx.getMessage()
+                   .addReaction(Emoji.fromUnicode("\u2795"))
+                   .queue();
             }
             return;
         }
@@ -101,31 +112,41 @@ public class Baccarat extends Command {
 
         float finalBet = bet;
         future.thenRun(() -> {
-            String result = game.joinPlayer(gi, finalBet, ctx.getMember(), choice);
-            if (result != null) {
-                ctx.fail(result);
-            } else {
-                ctx.getMessage().addReaction(Emoji.fromUnicode("\u2705")).queue();
-            }
-        }).exceptionally(e -> {
-            ctx.fail("An error occurred while waiting for the game to start: " + e.getMessage());
-            return null;
-        });
+                  String result = game.joinPlayer(gi, finalBet, ctx.getMember(), choice);
+                  if (result != null) {
+                      ctx.fail(result);
+                  } else {
+                      ctx.getMessage()
+                         .addReaction(Emoji.fromUnicode("\u2705"))
+                         .queue();
+                  }
+              })
+              .exceptionally(e -> {
+                  ctx.fail("An error occurred while waiting for the game to start: " + e.getMessage());
+                  return null;
+              });
     }
 
     public static void handleBaccaratButton(ButtonInteractionEvent event) {
         BaccaratGame game = games.get(event.getChannelId());
         if (game == null) {
-            event.reply("No active baccarat game in this channel!").setEphemeral(true).queue();
+            event.reply("No active baccarat game in this channel!")
+                 .setEphemeral(true)
+                 .queue();
             return;
         }
 
-        String action = event.getComponentId().split("_")[1];
+        String action = event.getComponentId()
+                             .split("_")[1];
 
         switch (action) {
             case "deal" -> game.startGame(event);
-            case "rejoin" -> game.playerRejoin(event.getUser().getId(), event);
-            default -> event.reply("Unknown action: " + action).setEphemeral(true).queue();
+            case "rejoin" -> game.playerRejoin(event.getUser()
+                                                    .getId(), event
+            );
+            default -> event.reply("Unknown action: " + action)
+                            .setEphemeral(true)
+                            .queue();
         }
     }
 
@@ -161,7 +182,8 @@ public class Baccarat extends Command {
                                                  if (!players.isEmpty()) {
                                                      startGame(null);
                                                  } else {
-                                                     currentGameMessage.editMessage("Game cancelled due to no players joining.").queue();
+                                                     currentGameMessage.editMessage("Game cancelled due to no players joining.")
+                                                                       .queue();
                                                      games.remove(channel.getId());
                                                  }
                                              }, BETTING_TIME_SECONDS, TimeUnit.SECONDS
@@ -170,10 +192,16 @@ public class Baccarat extends Command {
 
         public String joinPlayer(GamblingInstance gi, float bet, Member playerMember, String choice) {
             if (state != GameState.WAITING) {
+                if (players.isEmpty()) {
+                    endGame();
+                }
                 return "Game has already started!";
             }
 
-            if (players.stream().anyMatch(p -> p.getMember().getId().equals(playerMember.getId()))) {
+            if (players.stream()
+                       .anyMatch(p -> p.getMember()
+                                       .getId()
+                                       .equals(playerMember.getId()))) {
                 return "You are already in the game!";
             }
 
@@ -186,40 +214,55 @@ public class Baccarat extends Command {
         public void playerRejoin(String playerId, ButtonInteractionEvent event) {
             if (state != GameState.WAITING) {
                 if (event != null) {
-                    event.reply("Game is already in progress!").setEphemeral(true).queue();
+                    event.reply("Game is already in progress!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
 
-            if (players.stream().anyMatch(p -> p.getId().equals(playerId))) {
+            if (players.stream()
+                       .anyMatch(p -> p.getId()
+                                       .equals(playerId))) {
                 if (event != null) {
-                    event.reply("You are already in the game!").setEphemeral(true).queue();
+                    event.reply("You are already in the game!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
 
             if (Objects.isNull(previousGame)) {
                 if (event != null) {
-                    event.reply("No previous game to rejoin!").setEphemeral(true).queue();
+                    event.reply("No previous game to rejoin!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
 
             BaccaratPlayer previousPlayer = previousGame.players.stream()
-                                                                .filter(p -> p.getId().equals(playerId))
+                                                                .filter(p -> p.getId()
+                                                                              .equals(playerId))
                                                                 .findFirst()
                                                                 .orElse(null);
 
             if (previousPlayer == null) {
                 if (event != null) {
-                    event.reply("You weren't in the previous game!").setEphemeral(true).queue();
+                    event.reply("You weren't in the previous game!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
 
-            if (!previousPlayer.getGi().user().canAfford(previousPlayer.getBet())) {
+            if (!previousPlayer.getGi()
+                               .user()
+                               .canAfford(previousPlayer.getBet())) {
                 if (event != null) {
-                    event.reply("You can't afford to rejoin with your previous bet!").setEphemeral(true).queue();
+                    event.reply("You can't afford to rejoin with your previous bet!")
+                         .setEphemeral(true)
+                         .queue();
                 }
                 return;
             }
@@ -232,7 +275,8 @@ public class Baccarat extends Command {
             updateGameMessage();
 
             if (event != null) {
-                event.deferEdit().queue();
+                event.deferEdit()
+                     .queue();
             }
         }
 
@@ -240,6 +284,17 @@ public class Baccarat extends Command {
             if (state != GameState.WAITING) {
                 return;
             }
+            if (Objects.isNull(event) && !players.stream()
+                                                 .anyMatch(p -> p.getMember()
+                                                                 .getId()
+                                                                 .equals(event.getUser()
+                                                                              .getId()))) {
+                event.reply("You are not in the game!")
+                     .setEphemeral(true)
+                     .queue();
+                return;
+            }
+
             if (bettingTimer != null) {
                 bettingTimer.cancel(false);
             }
@@ -266,16 +321,20 @@ public class Baccarat extends Command {
                     Card playerThirdCard = playerHand.get(2);
                     if (bankerValue <= 2) {
                         bankerHand.add(deck.drawCard());
-                    } else if (bankerValue == 3 && playerThirdCard.rank().getValue() != 8) {
+                    } else if (bankerValue == 3 && playerThirdCard.rank()
+                                                                  .getValue() != 8) {
                         bankerHand.add(deck.drawCard());
-                    } else if (bankerValue == 4 && playerThirdCard.rank().getValue() >= 2 && playerThirdCard.rank()
-                                                                                                            .getValue() <= 7) {
+                    } else if (bankerValue == 4 && playerThirdCard.rank()
+                                                                  .getValue() >= 2 && playerThirdCard.rank()
+                                                                                                     .getValue() <= 7) {
                         bankerHand.add(deck.drawCard());
-                    } else if (bankerValue == 5 && playerThirdCard.rank().getValue() >= 4 && playerThirdCard.rank()
-                                                                                                            .getValue() <= 7) {
+                    } else if (bankerValue == 5 && playerThirdCard.rank()
+                                                                  .getValue() >= 4 && playerThirdCard.rank()
+                                                                                                     .getValue() <= 7) {
                         bankerHand.add(deck.drawCard());
-                    } else if (bankerValue == 6 && (playerThirdCard.rank().getValue() == 6 || playerThirdCard.rank()
-                                                                                                             .getValue() == 7)) {
+                    } else if (bankerValue == 6 && (playerThirdCard.rank()
+                                                                   .getValue() == 6 || playerThirdCard.rank()
+                                                                                                      .getValue() == 7)) {
                         bankerHand.add(deck.drawCard());
                     }
                 }
@@ -298,7 +357,8 @@ public class Baccarat extends Command {
             }
 
             for (BaccaratPlayer player : players) {
-                if (player.getChoice().equalsIgnoreCase(result)) {
+                if (player.getChoice()
+                          .equalsIgnoreCase(result)) {
                     float payout = 1.0f;
                     if (result.equals("Banker")) {
                         payout = 0.95f;
@@ -311,7 +371,8 @@ public class Baccarat extends Command {
                     player.setResult("LOSE");
                 }
             }
-            IO.getSystem(EconIO.class).save();
+            IO.getSystem(EconIO.class)
+              .save();
             updateGameMessage();
 
             if (bettingTimer != null) {
@@ -325,17 +386,20 @@ public class Baccarat extends Command {
         private int getHandValue(List<Card> hand) {
             int value = 0;
             for (Card card : hand) {
-                if (card.rank().getValue() >= 10) {
+                if (card.rank()
+                        .getValue() >= 10) {
                     value += 0;
                 } else {
-                    value += card.rank().getValue();
+                    value += card.rank()
+                                 .getValue();
                 }
             }
             return value % 10;
         }
 
         private void updateGameMessage() {
-            EmbedBuilder eb = new EmbedBuilder().setTitle("🎲 Baccarat 🎲").setColor(0xC71585);
+            EmbedBuilder eb = new EmbedBuilder().setTitle("🎲 Baccarat 🎲")
+                                                .setColor(0xC71585);
 
             if (state == GameState.WAITING) {
                 eb.setDescription(String.format(
@@ -361,7 +425,8 @@ public class Baccarat extends Command {
 
                 StringBuilder results = new StringBuilder();
                 for (BaccaratPlayer player : players) {
-                    results.append(player.getMember().getEffectiveName())
+                    results.append(player.getMember()
+                                         .getEffectiveName())
                            .append(": ")
                            .append(player.getResult())
                            .append("\n");
@@ -379,14 +444,16 @@ public class Baccarat extends Command {
             }
 
             if (currentGameMessage == null) {
-                MessageCreateBuilder mb = new MessageCreateBuilder().setEmbeds(eb.build()).addActionRow(buttons);
-                channel.sendMessage(mb.build()).queue(message -> {
-                    currentGameMessage = message;
-                    if (messageReadyCallback != null) {
-                        messageReadyCallback.run();
-                        messageReadyCallback = null;
-                    }
-                });
+                MessageCreateBuilder mb = new MessageCreateBuilder().setEmbeds(eb.build())
+                                                                    .addActionRow(buttons);
+                channel.sendMessage(mb.build())
+                       .queue(message -> {
+                           currentGameMessage = message;
+                           if (messageReadyCallback != null) {
+                               messageReadyCallback.run();
+                               messageReadyCallback = null;
+                           }
+                       });
             } else {
                 MessageEditBuilder meb = new MessageEditBuilder().setEmbeds(eb.build());
                 if (!buttons.isEmpty()) {
@@ -394,12 +461,15 @@ public class Baccarat extends Command {
                 } else {
                     meb.setComponents(Collections.emptyList());
                 }
-                currentGameMessage.editMessage(meb.build()).queue();
+                currentGameMessage.editMessage(meb.build())
+                                  .queue();
             }
         }
 
         private String formatCards(List<Card> hand) {
-            return hand.stream().map(Card::toString).collect(Collectors.joining(" "));
+            return hand.stream()
+                       .map(Card::toString)
+                       .collect(Collectors.joining(" "));
         }
 
         private enum GameState {WAITING, IN_PROGRESS, COMPLETED}

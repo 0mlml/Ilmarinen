@@ -180,6 +180,9 @@ public class Crash extends Command {
 
         public String joinPlayer(GamblingInstance gi, float amount, Member member) {
             if (state != GameState.WAITING) {
+                if (players.isEmpty()) {
+                    endGame(); 
+                }
                 return "Game has already started!";
             }
 

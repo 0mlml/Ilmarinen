@@ -1,6 +1,5 @@
 package dev.mlml;
 
-import dev.mlml.command.Command;
 import dev.mlml.command.CommandRegistry;
 import dev.mlml.command.impl.*;
 import dev.mlml.systems.IO;
@@ -54,6 +53,7 @@ public class Ilmarinen {
         CommandRegistry.registerClass(LevelConfig.class);
         CommandRegistry.registerClass(Music.class);
         CommandRegistry.registerClass(Baccarat.class);
+        CommandRegistry.registerClass(Respond.class);
     }
 
 

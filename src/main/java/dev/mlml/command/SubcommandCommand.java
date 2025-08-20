@@ -1,9 +1,6 @@
 package dev.mlml.command;
 
-import dev.mlml.command.argument.ArgumentBase;
-import dev.mlml.command.argument.ParsedArgument;
-import dev.mlml.command.argument.ParsedArgumentList;
-import dev.mlml.command.argument.SubcommandArgument;
+import dev.mlml.command.argument.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +57,15 @@ public abstract class SubcommandCommand extends Command {
 
         for (int i = 0; i < subcommandArgs.size(); i++) {
             ArgumentBase<?> arg = subcommandArgs.get(i);
+
+            if (arg instanceof StringArgument && ((StringArgument) arg).isVArgs()) {
+                List<String> remainingArgs = List.of(rawArgs).subList(argIndex, rawArgs.length);
+                if (remainingArgs.isEmpty()) {
+                    return null;
+                }
+                parsedArgs.add(arg, String.join(" ", remainingArgs));
+                break;
+            }
 
             if (argIndex >= rawArgs.length) {
                 if (arg.isRequired()) {

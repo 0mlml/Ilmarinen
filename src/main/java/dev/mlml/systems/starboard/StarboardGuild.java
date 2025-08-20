@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.awt.*;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -38,6 +39,7 @@ public class StarboardGuild {
 
     /**
      * Gets the starboard channel for this guild.
+     *
      * @return the TextChannel for the starboard, or null if not set
      */
     public TextChannel getChannel() {
@@ -49,6 +51,7 @@ public class StarboardGuild {
 
     /**
      * Adds a message to the starred messages set.
+     *
      * @param message the message to add
      */
     public void addStarredMessage(Message message) {
@@ -57,6 +60,7 @@ public class StarboardGuild {
 
     /**
      * Checks if a message is already starred.
+     *
      * @param message the message to check
      * @return true if the message is already starred, false otherwise
      */
@@ -66,6 +70,7 @@ public class StarboardGuild {
 
     /**
      * Removes a message from the starred messages set.
+     *
      * @param messageId the ID of the message to remove
      */
     public void removeStarredMessage(String messageId) {
@@ -77,30 +82,22 @@ public class StarboardGuild {
      * If the message is already starred, it updates the existing starboard message.
      *
      * @param message   the original message to be starred
-     * @param starCount the number of stars received
+     * @param reactionCounts a map of reaction emojis to their counts
      */
-    public void sendStarboardMessage(Message message, int starCount) {
+    public void sendStarboardMessage(Message message, Map<String, Integer> reactionCounts) {
         TextChannel starboardChannel = getChannel();
         if (starboardChannel == null) {
             logger.warn("Starboard channel not found for guild {}", id);
             return;
         }
 
-        if (isAlreadyStarred(message)) {
-            updateStarboardMessage(message, starCount);
-            return;
-        }
+        EmbedBuilder embed = createStarboardEmbed(message, reactionCounts);
 
-        EmbedBuilder embed = createStarboardEmbed(message, starCount);
-
-        starboardChannel.sendMessageEmbeds(embed.build())
-                        .queue(
-                                starboardMessage -> {
-                                    addStarredMessage(message);
-                                    logger.debug("Sent starboard message for {} in guild {}", message.getId(), id);
-                                },
-                                throwable -> logger.error("Failed to send starboard message", throwable)
-                        );
+        starboardChannel.sendMessageEmbeds(embed.build()).queue(starboardMessage -> {
+                                                                    addStarredMessage(message);
+                                                                    logger.debug("Sent starboard message for {} in guild {}", message.getId(), id);
+                                                                }, throwable -> logger.error("Failed to send starboard message", throwable)
+        );
     }
 
     /**
@@ -108,9 +105,10 @@ public class StarboardGuild {
      * If the star count is below the threshold, it deletes the starboard message after a delay.
      *
      * @param originalMessage the original message that was starred
-     * @param starCount       the updated number of stars
+     * @param reactionCounts  a map of reaction emojis to their counts
+     * @param starCount       the current star count for the original message, calculated from unique users if the emoji is "*"
      */
-    public void updateStarboardMessage(Message originalMessage, int starCount) {
+    public void updateStarboardMessage(Message originalMessage, Map<String, Integer> reactionCounts, int starCount) {
         TextChannel starboardChannel = getChannel();
         if (starboardChannel == null) {
             return;
@@ -118,28 +116,33 @@ public class StarboardGuild {
 
         starboardChannel.getHistory().retrievePast(100).queue(messages -> {
             for (Message starboardMessage : messages) {
-                if (starboardMessage.getEmbeds().isEmpty()) continue;
+                if (starboardMessage.getEmbeds().isEmpty()) {
+                    continue;
+                }
 
-                MessageEmbed embed = starboardMessage.getEmbeds().get(0);
-                if (embed.getAuthor() != null &&
-                        embed.getAuthor().getUrl() != null &&
-                        embed.getAuthor().getUrl().contains(originalMessage.getId())) {
+                MessageEmbed embed = starboardMessage.getEmbeds()
+                        .get(0);
+                if (embed.getAuthor() != null && embed.getAuthor().getUrl() != null && embed.getAuthor()
+                                                                                            .getUrl()
+                                                                                            .contains(originalMessage.getId())) {
 
-                    EmbedBuilder updatedEmbed = createStarboardEmbed(originalMessage, starCount);
+                    EmbedBuilder updatedEmbed = createStarboardEmbed(originalMessage, reactionCounts);
 
                     if (starCount < threshold) {
                         starboardMessage.editMessage("⚠️ Deleting in 10 seconds!")
                                         .setEmbeds(updatedEmbed.build())
                                         .queue();
 
-                        starboardMessage.delete().queueAfter(10, java.util.concurrent.TimeUnit.SECONDS,
-                                                             success -> removeStarredMessage(originalMessage.getId()),
-                                                             throwable -> logger.error("Failed to delete starboard message", throwable)
-                        );
+                        starboardMessage.delete()
+                                        .queueAfter(10,
+                                                    java.util.concurrent.TimeUnit.SECONDS,
+                                                    success -> removeStarredMessage(originalMessage.getId()),
+                                                    throwable -> logger.error("Failed to delete starboard message",
+                                                                              throwable
+                                                    )
+                                        );
                     } else {
-                        starboardMessage.editMessage("✨Updated!")
-                                        .setEmbeds(updatedEmbed.build())
-                                        .queue();
+                        starboardMessage.editMessage("✨Updated!").setEmbeds(updatedEmbed.build()).queue();
                     }
                     break;
                 }
@@ -147,18 +150,15 @@ public class StarboardGuild {
         });
     }
 
-    private EmbedBuilder createStarboardEmbed(Message message, int starCount) {
+
+    private EmbedBuilder createStarboardEmbed(Message message, Map<String, Integer> reactionCounts) {
         EmbedBuilder embed = new EmbedBuilder();
 
-        embed.setAuthor(
-                message.getAuthor().getAsTag(),
-                message.getJumpUrl(),
-                message.getAuthor().getAvatarUrl()
-        );
+        embed.setAuthor(message.getAuthor().getAsTag(), message.getJumpUrl(), message.getAuthor().getAvatarUrl());
 
         embed.setColor(new Color(255, 215, 0));
         embed.setTimestamp(Instant.now());
-        embed.setFooter(starCount + emoji);
+        embed.setFooter(generateFooterText(reactionCounts));
 
         embed.setTitle("#" + message.getChannel().getName() + " (Jump!)", message.getJumpUrl());
 
@@ -167,13 +167,24 @@ public class StarboardGuild {
         }
 
         if (!message.getAttachments().isEmpty()) {
-            Message.Attachment attachment = message.getAttachments().get(0);
+            Message.Attachment attachment = message.getAttachments()
+                    .get(0);
             if (attachment.isImage()) {
                 embed.setImage(attachment.getUrl());
             }
         }
 
         return embed;
+    }
+
+    private String generateFooterText(Map<String, Integer> reactionCounts) {
+        StringBuilder footer = new StringBuilder();
+        reactionCounts.forEach((emoji, count) -> {
+            if (emoji.equals(this.emoji) || this.emoji.equals("*")) {
+                footer.append(count).append(" ").append(emoji).append(" ");
+            }
+        });
+        return footer.toString();
     }
 
     /**
